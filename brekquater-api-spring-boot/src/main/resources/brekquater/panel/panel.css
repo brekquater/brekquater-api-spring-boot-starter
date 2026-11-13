@@ -1,0 +1,426 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright Brekquater
+ *
+ * Every rule is scoped under .bq-panel (or the standalone page), for two reasons: nothing leaks into
+ * Swagger UI, and two classes outrank Swagger UI's own ".swagger-ui element" rules, such as the one that makes
+ * every summary a list item.
+ * Text colours meet WCAG AA contrast (4.5:1) on their backgrounds in both themes.
+ */
+
+.bq-panel,
+.bq-page {
+  --bq-text: #1f2328;
+  --bq-muted: #57606a;
+  --bq-surface: #ffffff;
+  --bq-subtle: #f6f8fa;
+  --bq-border: #d0d7de;
+  --bq-focus: #0969da;
+  --bq-link: #0969da;
+  --bq-ring-track: #d0d7de;
+  --bq-good: #1a7f37;
+  --bq-fair: #9a6700;
+  --bq-poor: #cf222e;
+  --bq-blocker-bg: #ffebe9;
+  --bq-blocker-text: #82071e;
+  --bq-major-bg: #fff1e5;
+  --bq-major-text: #762c00;
+  --bq-minor-bg: #fff8c5;
+  --bq-minor-text: #4d2d00;
+  --bq-info-bg: #ddf4ff;
+  --bq-info-text: #0a3069;
+}
+
+/*
+ * Dark theme. Inside Swagger UI the panel follows Swagger UI's own theme switch, which puts "dark-mode" on the
+ * html element and starts from the operating system's setting. The standalone page follows the operating system.
+ * The two blocks hold the same values; plain CSS has no way to share them.
+ */
+html.dark-mode .bq-panel {
+  --bq-text: #e6edf3;
+  --bq-muted: #9198a1;
+  --bq-surface: #0d1117;
+  --bq-subtle: #161b22;
+  --bq-border: #3d444d;
+  --bq-focus: #4493f8;
+  --bq-link: #4493f8;
+  --bq-ring-track: #3d444d;
+  --bq-good: #3fb950;
+  --bq-fair: #d29922;
+  --bq-poor: #f85149;
+  --bq-blocker-bg: #490202;
+  --bq-blocker-text: #ffc1c0;
+  --bq-major-bg: #3d1300;
+  --bq-major-text: #ffc89b;
+  --bq-minor-bg: #3b2300;
+  --bq-minor-text: #f8e3a1;
+  --bq-info-bg: #0c2d6b;
+  --bq-info-text: #b6e3ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bq-page,
+  .bq-page .bq-panel {
+    --bq-text: #e6edf3;
+    --bq-muted: #9198a1;
+    --bq-surface: #0d1117;
+    --bq-subtle: #161b22;
+    --bq-border: #3d444d;
+    --bq-focus: #4493f8;
+    --bq-link: #4493f8;
+    --bq-ring-track: #3d444d;
+    --bq-good: #3fb950;
+    --bq-fair: #d29922;
+    --bq-poor: #f85149;
+    --bq-blocker-bg: #490202;
+    --bq-blocker-text: #ffc1c0;
+    --bq-major-bg: #3d1300;
+    --bq-major-text: #ffc89b;
+    --bq-minor-bg: #3b2300;
+    --bq-minor-text: #f8e3a1;
+    --bq-info-bg: #0c2d6b;
+    --bq-info-text: #b6e3ff;
+  }
+}
+
+/* Standalone page */
+
+.bq-page {
+  margin: 0;
+  background: var(--bq-subtle);
+  color: var(--bq-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.bq-standalone {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.bq-standalone > h1 {
+  margin: 0 0 16px;
+  font-size: 24px;
+}
+
+/* Inside Swagger UI: line up with Swagger UI's own content column. */
+
+.bq-swagger-wrapper {
+  box-sizing: border-box;
+  max-width: 1460px;
+  margin: 0 auto 16px;
+  padding: 0 20px;
+}
+
+/* The panel */
+
+.bq-panel {
+  box-sizing: border-box;
+  border: 1px solid var(--bq-border);
+  border-radius: 8px;
+  background: var(--bq-surface);
+  color: var(--bq-text);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.bq-panel *,
+.bq-panel *::before,
+.bq-panel *::after {
+  box-sizing: border-box;
+}
+
+.bq-panel summary {
+  cursor: pointer;
+}
+
+/* Flex layout hides the browser's own disclosure triangle, so draw one that still says "click to open". */
+.bq-panel .bq-summary,
+.bq-panel .bq-group-summary {
+  list-style: none;
+}
+
+.bq-panel .bq-summary::-webkit-details-marker,
+.bq-panel .bq-group-summary::-webkit-details-marker {
+  display: none;
+}
+
+.bq-panel .bq-summary::before,
+.bq-panel .bq-group-summary::before {
+  content: "\25B8";
+  color: var(--bq-muted);
+}
+
+.bq-panel[open] > .bq-summary::before,
+.bq-panel details[open] > .bq-group-summary::before {
+  content: "\25BE";
+}
+
+.bq-panel :focus-visible {
+  outline: 2px solid var(--bq-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.bq-panel .bq-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+}
+
+.bq-panel .bq-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.bq-panel .bq-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.bq-panel .bq-muted {
+  color: var(--bq-muted);
+}
+
+.bq-panel .bq-note {
+  margin: 0;
+  padding: 0 16px 16px;
+  color: var(--bq-muted);
+}
+
+.bq-panel .bq-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--bq-border);
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.bq-panel .bq-badge.bq-blocker {
+  border-color: transparent;
+  background: var(--bq-blocker-bg);
+  color: var(--bq-blocker-text);
+}
+
+/* Score ring */
+
+.bq-panel .bq-ring {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 56px;
+  height: 56px;
+}
+
+.bq-panel .bq-ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.bq-panel .bq-ring circle {
+  fill: none;
+  stroke-width: 3.5;
+}
+
+.bq-panel .bq-ring-track {
+  stroke: var(--bq-ring-track);
+}
+
+.bq-panel .bq-ring-arc {
+  stroke: var(--bq-muted);
+  stroke-linecap: round;
+}
+
+.bq-panel .bq-grade-A .bq-ring-arc,
+.bq-panel .bq-grade-B .bq-ring-arc {
+  stroke: var(--bq-good);
+}
+
+.bq-panel .bq-grade-C .bq-ring-arc,
+.bq-panel .bq-grade-D .bq-ring-arc {
+  stroke: var(--bq-fair);
+}
+
+.bq-panel .bq-grade-F .bq-ring-arc {
+  stroke: var(--bq-poor);
+}
+
+.bq-panel .bq-ring-number {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.bq-panel .bq-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Body */
+
+.bq-panel .bq-body {
+  border-top: 1px solid var(--bq-border);
+  padding: 8px 16px 16px;
+}
+
+.bq-panel .bq-section {
+  margin-top: 12px;
+}
+
+.bq-panel .bq-heading {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bq-panel .bq-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bq-panel .bq-tile {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  border: 1px solid var(--bq-border);
+  border-radius: 6px;
+  background: var(--bq-subtle);
+}
+
+.bq-panel .bq-tile-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.bq-panel .bq-tile-off .bq-tile-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bq-muted);
+}
+
+.bq-panel .bq-tile-name {
+  color: var(--bq-muted);
+  font-size: 12px;
+}
+
+/* Findings */
+
+.bq-panel .bq-group {
+  margin-top: 8px;
+  border: 1px solid var(--bq-border);
+  border-radius: 6px;
+}
+
+.bq-panel .bq-group-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.bq-panel .bq-chip {
+  display: inline-block;
+  min-width: 64px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+}
+
+.bq-panel .bq-blocker {
+  background: var(--bq-blocker-bg);
+  color: var(--bq-blocker-text);
+}
+
+.bq-panel .bq-major {
+  background: var(--bq-major-bg);
+  color: var(--bq-major-text);
+}
+
+.bq-panel .bq-minor {
+  background: var(--bq-minor-bg);
+  color: var(--bq-minor-text);
+}
+
+.bq-panel .bq-info {
+  background: var(--bq-info-bg);
+  color: var(--bq-info-text);
+}
+
+.bq-panel .bq-findings {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bq-panel .bq-finding {
+  padding: 10px 12px;
+  border-top: 1px solid var(--bq-border);
+}
+
+.bq-panel .bq-finding-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.bq-panel .bq-rule-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--bq-muted);
+}
+
+.bq-panel .bq-where {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 4px 0 0;
+  color: var(--bq-muted);
+}
+
+.bq-panel .bq-pointer {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--bq-subtle);
+  color: var(--bq-text);
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.bq-panel .bq-fix {
+  margin-top: 6px;
+}
+
+.bq-panel .bq-fix > summary {
+  color: var(--bq-link);
+  font-weight: 600;
+}
+
+.bq-panel .bq-fix > p {
+  margin: 6px 0;
+}
+
+.bq-panel .bq-fix a {
+  color: var(--bq-link);
+}

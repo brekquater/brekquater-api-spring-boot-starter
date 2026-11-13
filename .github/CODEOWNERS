@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright Brekquater
+
+* @SHESHANKSK
+
+# Workflow changes can publish artifacts, so they always need a maintainer's review.
+/.github/ @SHESHANKSK

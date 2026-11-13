@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright Brekquater
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build on Java ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [17, 21, 25]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - run: ./mvnw --batch-mode --no-transfer-progress verify
+
+  maven-4:
+    name: Build on the Maven 4 release candidate (non-blocking)
+    runs-on: ubuntu-latest
+    # Maven 4 is not final yet, so a failure here is information and must not block a merge.
+    continue-on-error: true
+    env:
+      MAVEN_4_VERSION: 4.0.0-rc-7
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Point the Maven Wrapper at Maven 4
+        run: |
+          sed -i \
+            -e "s#^distributionUrl=.*#distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${MAVEN_4_VERSION}/apache-maven-${MAVEN_4_VERSION}-bin.zip#" \
+            -e '/^distributionSha256Sum=/d' \
+            .mvn/wrapper/maven-wrapper.properties
+      - run: ./mvnw --batch-mode --no-transfer-progress verify
+
+  dco:
+    name: Commits are signed off (DCO)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Check every commit for a Signed-off-by line
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: .github/scripts/check-dco.sh "$BASE_SHA" "$HEAD_SHA"
