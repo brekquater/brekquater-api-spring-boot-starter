@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright Brekquater
+
+spring:
+  application:
+    name: brekquater-api-demo
+  profiles:
+    # "dev" shows the assessment; "good" or "bad" chooses which API the demo serves.
+    default: dev,good
