@@ -15,6 +15,7 @@ import com.brekquater.api.rules.CoverageCounter;
 import com.brekquater.api.rules.CoverageTargets;
 import com.brekquater.api.rules.CvssBand;
 import com.brekquater.api.rules.FailedTest;
+import com.brekquater.api.rules.Finding;
 import com.brekquater.api.rules.ReportFile;
 import com.brekquater.api.rules.RuleInput;
 import com.brekquater.api.rules.RuleResult;
@@ -129,7 +130,7 @@ class EvidenceRulesTest {
                 advisory("CVE-2099-0001", CvssBand.CRITICAL), advisory("CVE-2099-0002", CvssBand.HIGH));
 
         assertThat(new NoCriticalVulnerability().evaluate(context).findings())
-                .extracting(finding -> finding.message())
+                .extracting(Finding::message)
                 .containsExactly("pkg:maven/com.example/parser@1.0.0 has a Critical known vulnerability, "
                         + "CVE-2099-0001 (CVSS 9.8).");
         assertThat(new NoHighVulnerability().evaluate(context).findings()).hasSize(1);

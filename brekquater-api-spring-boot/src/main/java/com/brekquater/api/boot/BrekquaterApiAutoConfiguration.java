@@ -90,7 +90,8 @@ public final class BrekquaterApiAutoConfiguration {
                 properties.thresholds().coverageTargets());
         AssessmentService engine = new EngineAssessmentService(new EngineAssessmentService.Collaborators(
                 inputs, new RuleEngine(registry), calculator, Clock.systemUTC()));
-        return new CachingAssessmentService(engine, inputs::fingerprint);
+        return new CachingAssessmentService(
+                engine, document -> document.map(inputs::fingerprintOf).orElseGet(inputs::fingerprintWithoutDocument));
     }
 
     // Reads the environment rather than the bound properties, so the server's context path is the one springdoc sees.

@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 
 class CachingAssessmentServiceTest {
 
-    private static final Optional<OpenApiDocument> ORDERS = Optional.of(OpenApiDocument.of("{\"openapi\":\"3.1.0\"}"));
-    private static final Optional<OpenApiDocument> CHANGED = Optional.of(OpenApiDocument.of("{\"openapi\":\"3.0.3\"}"));
+    private static final OpenApiDocument ORDERS = OpenApiDocument.of("{\"openapi\":\"3.1.0\"}");
+    private static final OpenApiDocument CHANGED = OpenApiDocument.of("{\"openapi\":\"3.0.3\"}");
 
     private final AtomicInteger assessments = new AtomicInteger();
     private final AtomicReference<String> reportsFingerprint = new AtomicReference<>("jacoco.xml:100");
@@ -33,8 +33,8 @@ class CachingAssessmentServiceTest {
 
     @Test
     void assessesAnUnchangedDocumentOnlyOnce() {
-        Assessment first = service.assess(ORDERS);
-        Assessment second = service.assess(ORDERS);
+        Assessment first = service.assess(Optional.of(ORDERS));
+        Assessment second = service.assess(Optional.of(ORDERS));
 
         assertThat(second).isSameAs(first);
         assertThat(assessments).hasValue(1);
@@ -42,9 +42,9 @@ class CachingAssessmentServiceTest {
 
     @Test
     void assessesAgainWhenTheDocumentChanges() {
-        service.assess(ORDERS);
-        service.assess(CHANGED);
-        service.assess(CHANGED);
+        service.assess(Optional.of(ORDERS));
+        service.assess(Optional.of(CHANGED));
+        service.assess(Optional.of(CHANGED));
 
         assertThat(assessments).hasValue(2);
     }
@@ -60,16 +60,16 @@ class CachingAssessmentServiceTest {
     @Test
     void aDocumentAppearingAfterNoneIsAssessed() {
         service.assess(Optional.empty());
-        service.assess(ORDERS);
+        service.assess(Optional.of(ORDERS));
 
         assertThat(assessments).hasValue(2);
     }
 
     @Test
     void assessesAgainWhenABuildReportChanges() {
-        service.assess(ORDERS);
+        service.assess(Optional.of(ORDERS));
         reportsFingerprint.set("jacoco.xml:200");
-        service.assess(ORDERS);
+        service.assess(Optional.of(ORDERS));
 
         assertThat(assessments).hasValue(2);
     }

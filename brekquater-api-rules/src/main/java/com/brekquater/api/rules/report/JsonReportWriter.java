@@ -21,7 +21,6 @@ import com.brekquater.api.rules.scoring.SecurityRating;
 import java.io.Writer;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import java.util.OptionalInt;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -58,7 +57,7 @@ final class JsonReportWriter implements ReportWriter {
         putStatus(report, result);
         report.set("score", score(assessment.score()));
         report.put("securityRating", SecurityRating.of(result).map(Enum::name).orElse(null));
-        report.put("blockers", countOf(Severity.BLOCKER, result));
+        report.put("blockers", blockerCount(result));
         report.set("categories", categories(assessment));
         report.set("findings", findings(result));
         report.set("failedRules", failedRules(result));
@@ -111,7 +110,7 @@ final class JsonReportWriter implements ReportWriter {
 
     private ObjectNode score(Score score) {
         ObjectNode node = mapper.createObjectNode();
-        putScore(node, "overall", score.overall());
+        score.overall().ifPresentOrElse(value -> node.put("overall", value), () -> node.putNull("overall"));
         node.put("grade", score.grade().map(Enum::name).orElse(null));
         node.put("assessedCategories", score.assessedCategoryCount());
         node.put("totalCategories", Category.values().length);
@@ -128,7 +127,7 @@ final class JsonReportWriter implements ReportWriter {
         ObjectNode node = mapper.createObjectNode();
         node.put("name", score.category().name());
         node.put("assessed", score.assessed());
-        putScore(node, "score", score.score());
+        score.score().ifPresentOrElse(value -> node.put("score", value), () -> node.putNull("score"));
         if (score.category() == Category.TESTING) {
             testingMetrics(result.reports()).ifPresent(metrics -> node.set("metrics", metrics));
         }
@@ -194,16 +193,8 @@ final class JsonReportWriter implements ReportWriter {
         return failedRules;
     }
 
-    private static void putScore(ObjectNode node, String name, OptionalInt score) {
-        if (score.isPresent()) {
-            node.put(name, score.getAsInt());
-        } else {
-            node.putNull(name);
-        }
-    }
-
-    private static long countOf(Severity severity, AssessmentResult result) {
-        return result.findings().stream().filter(finding -> finding.severity() == severity).count();
+    private static long blockerCount(AssessmentResult result) {
+        return result.findings().stream().filter(finding -> finding.severity() == Severity.BLOCKER).count();
     }
 
     private static boolean inputIsMissingFor(Category category, AssessmentResult result) {

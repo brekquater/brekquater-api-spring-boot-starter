@@ -6,7 +6,6 @@ package com.brekquater.api.boot;
 import com.brekquater.api.rules.AssessmentContext;
 import com.brekquater.api.rules.CoverageTargets;
 import com.brekquater.api.rules.openapi.SwaggerOpenApiContext;
-import java.util.Optional;
 
 /** Gathers what one assessment reads: the OpenAPI document, the build reports and the coverage targets. */
 final class AssessmentInputs {
@@ -27,15 +26,23 @@ final class AssessmentInputs {
     }
 
     /** Returns a value that changes whenever the document or any build report changes. */
-    String fingerprint(Optional<OpenApiDocument> document) {
-        return document.map(OpenApiDocument::fingerprint).orElse(NO_DOCUMENT) + "|" + reports.fingerprint();
+    String fingerprintOf(OpenApiDocument document) {
+        return document.fingerprint() + "|" + reports.fingerprint();
     }
 
-    AssessmentContext contextFor(Optional<OpenApiDocument> document) {
-        AssessmentContext context =
-                AssessmentContext.empty().withReports(reports.read()).withCoverageTargets(targets);
-        return document.flatMap(OpenApiDocumentParser::parse)
+    /** Returns a value that changes whenever a build report changes, for an application without a document. */
+    String fingerprintWithoutDocument() {
+        return NO_DOCUMENT + "|" + reports.fingerprint();
+    }
+
+    AssessmentContext contextFor(OpenApiDocument document) {
+        AssessmentContext context = contextWithoutDocument();
+        return OpenApiDocumentParser.parse(document)
                 .map(openApi -> context.withOpenApi(new SwaggerOpenApiContext(openApi)))
                 .orElse(context);
+    }
+
+    AssessmentContext contextWithoutDocument() {
+        return AssessmentContext.empty().withReports(reports.read()).withCoverageTargets(targets);
     }
 }

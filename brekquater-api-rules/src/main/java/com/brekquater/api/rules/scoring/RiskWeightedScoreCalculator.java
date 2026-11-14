@@ -49,10 +49,13 @@ final class RiskWeightedScoreCalculator implements ScoreCalculator {
         Set<Category> assessed = result.assessedCategories();
         List<CategoryScore> categories = Arrays.stream(Category.values())
                 .map(category -> new CategoryScore(
-                        category, assessed.contains(category), rounded(Optional.ofNullable(exactScores.get(category)))))
+                        category, assessed.contains(category), roundedScoreOf(category, exactScores)))
                 .toList();
-        OptionalInt overall = rounded(mean(exactScores.values()));
-        return new Score(overall, grade(overall, result), categories);
+        OptionalInt overall = mean(exactScores.values()).stream()
+                .mapToInt(RiskWeightedScoreCalculator::rounded)
+                .findFirst();
+        Optional<Grade> grade = overall.stream().mapToObj(score -> gradeOf(score, result)).findFirst();
+        return new Score(overall, grade, categories);
     }
 
     private Map<Category, BigDecimal> exactCategoryScores(AssessmentResult result) {
@@ -78,11 +81,8 @@ final class RiskWeightedScoreCalculator implements ScoreCalculator {
         return policy.weightOf(outcome.severity());
     }
 
-    private Optional<Grade> grade(OptionalInt overall, AssessmentResult result) {
-        if (overall.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(hasBlocker(result) ? Grade.F : policy.gradeOf(overall.getAsInt()));
+    private Grade gradeOf(int overall, AssessmentResult result) {
+        return hasBlocker(result) ? Grade.F : policy.gradeOf(overall);
     }
 
     private static boolean hasBlocker(AssessmentResult result) {
@@ -107,9 +107,13 @@ final class RiskWeightedScoreCalculator implements ScoreCalculator {
         return Optional.of(total.divide(BigDecimal.valueOf(scores.size()), PRECISION));
     }
 
-    private static OptionalInt rounded(Optional<BigDecimal> exactScore) {
-        return exactScore
-                .map(score -> OptionalInt.of(score.setScale(0, RoundingMode.HALF_UP).intValueExact()))
-                .orElse(OptionalInt.empty());
+    private static OptionalInt roundedScoreOf(Category category, Map<Category, BigDecimal> exactScores) {
+        return Optional.ofNullable(exactScores.get(category)).stream()
+                .mapToInt(RiskWeightedScoreCalculator::rounded)
+                .findFirst();
+    }
+
+    private static int rounded(BigDecimal exactScore) {
+        return exactScore.setScale(0, RoundingMode.HALF_UP).intValueExact();
     }
 }

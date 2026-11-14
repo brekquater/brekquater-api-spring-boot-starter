@@ -65,6 +65,8 @@ osv-scanner scan -r . --format json --output-file target/osv-scanner.json
 
 OSV-Scanner exits with a non-zero code when it finds vulnerabilities; the report is written either way. The starter reads the highest CVSS score of each group of related advisories. An advisory with no score is placed by its GitHub severity, or counted as Medium when it has none.
 
+OSV-Scanner matches advisories by package. A newly published CVE that no advisory database has tied to a Maven package yet, and that names only a source repository, is not reported, even though other scanners may already flag it. Dependency-Check matches by CPE instead, so running both narrows the gap.
+
 To accept an advisory you have reviewed, add it to `osv-scanner.toml` with a reason. Ignored advisories are not in the report, so the starter does not see them.
 
 ## Vulnerabilities: OWASP Dependency-Check

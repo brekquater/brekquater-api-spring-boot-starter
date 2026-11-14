@@ -6,10 +6,12 @@ package com.brekquater.api.boot;
 import com.brekquater.api.rules.Finding;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
 import org.springframework.boot.diagnostics.FailureAnalysis;
 
 /** Explains a startup that strict mode stopped: which blockers were found, where, and how to proceed. */
+@NullMarked
 final class StrictModeFailureAnalyzer extends AbstractFailureAnalyzer<StrictModeViolationException> {
 
     // Enough to start fixing; the full list is in the assessment.

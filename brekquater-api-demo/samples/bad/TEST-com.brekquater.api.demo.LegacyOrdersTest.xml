@@ -5,6 +5,6 @@
   Made-up sample report for the demo; see ../README.md.
 -->
 <testsuite name="com.brekquater.api.demo.LegacyOrdersTest" tests="2" failures="1" errors="0" skipped="0">
-  <testcase name="listsOrders" classname="com.brekquater.api.demo.LegacyOrdersTest" time="0.1"></testcase>
+  <testcase name="listsOrders" classname="com.brekquater.api.demo.LegacyOrdersTest" time="0.1"/>
   <testcase name="deletesAnOrder" classname="com.brekquater.api.demo.LegacyOrdersTest" time="0.1"><failure message="Status expected:&lt;204&gt; but was:&lt;500&gt;" type="java.lang.AssertionError">java.lang.AssertionError</failure></testcase>
 </testsuite>

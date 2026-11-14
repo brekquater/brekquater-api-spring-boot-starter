@@ -47,6 +47,7 @@ class ScoreMonotonicityPropertyTest {
     }
 
     @Provide
+    @SuppressWarnings("unused") // Called by jqwik through @ForAll("outcomesWithAPassingTarget").
     Arbitrary<List<RuleOutcome>> outcomesWithAPassingTarget() {
         Arbitrary<RuleOutcome> outcome = Arbitraries.integers()
                 .between(1, MAXIMUM_TARGETS)

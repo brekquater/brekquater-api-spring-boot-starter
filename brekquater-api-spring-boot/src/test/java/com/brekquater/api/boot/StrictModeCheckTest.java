@@ -19,6 +19,7 @@ import com.brekquater.api.rules.scoring.Score;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,7 +62,7 @@ class StrictModeCheckTest {
     void explainsWhichBlockersStoppedStartupAndHowToProceed() {
         StrictModeViolationException violation = new StrictModeViolationException(List.of(finding(Severity.BLOCKER)));
 
-        FailureAnalysis analysis = new StrictModeFailureAnalyzer().analyze(violation);
+        FailureAnalysis analysis = Objects.requireNonNull(new StrictModeFailureAnalyzer().analyze(violation));
 
         assertThat(analysis.getDescription())
                 .contains("found 1 blocker finding(s)", "BQ-SEC-001 at /paths/~1orders/get: Unprotected.");
@@ -72,7 +73,8 @@ class StrictModeCheckTest {
     void listsAtMostTenBlockers() {
         List<Finding> twelve = IntStream.range(0, 12).mapToObj(index -> finding(Severity.BLOCKER)).toList();
 
-        FailureAnalysis analysis = new StrictModeFailureAnalyzer().analyze(new StrictModeViolationException(twelve));
+        FailureAnalysis analysis =
+                Objects.requireNonNull(new StrictModeFailureAnalyzer().analyze(new StrictModeViolationException(twelve)));
 
         assertThat(analysis.getDescription()).contains("... and 2 more");
     }

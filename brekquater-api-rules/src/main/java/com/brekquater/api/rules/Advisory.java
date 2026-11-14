@@ -19,10 +19,10 @@ import java.util.Optional;
  * @param fixedVersion the first version that is not affected, when the scanner knows it
  */
 public record Advisory(
-        String id, String packageUrl, CvssBand band, Optional<BigDecimal> score, Optional<String> fixedVersion)
-        implements Comparable<Advisory> {
+        String id, String packageUrl, CvssBand band, Optional<BigDecimal> score, Optional<String> fixedVersion) {
 
-    private static final Comparator<Advisory> ORDER =
+    /** Order of advisories in every report: by dependency, then by advisory ID. */
+    public static final Comparator<Advisory> REPORT_ORDER =
             Comparator.comparing(Advisory::packageUrl).thenComparing(Advisory::id);
 
     public Advisory {
@@ -31,10 +31,5 @@ public record Advisory(
         Objects.requireNonNull(band, "band");
         Objects.requireNonNull(score, "score");
         Objects.requireNonNull(fixedVersion, "fixedVersion");
-    }
-
-    @Override
-    public int compareTo(Advisory other) {
-        return ORDER.compare(this, other);
     }
 }

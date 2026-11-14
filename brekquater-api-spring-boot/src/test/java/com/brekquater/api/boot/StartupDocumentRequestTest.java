@@ -41,7 +41,8 @@ class StartupDocumentRequestTest {
 
     @Test
     void behavesAsAnOrdinaryObject() {
-        assertThat(request).isEqualTo(request).isNotEqualTo(StartupDocumentRequest.create("/shop"));
+        assertThat(request.equals(request)).isTrue();
+        assertThat(request).isNotEqualTo(StartupDocumentRequest.create("/shop"));
         assertThat(request.hashCode()).isEqualTo(System.identityHashCode(request));
         assertThat(request).hasToString("StartupDocumentRequest");
     }

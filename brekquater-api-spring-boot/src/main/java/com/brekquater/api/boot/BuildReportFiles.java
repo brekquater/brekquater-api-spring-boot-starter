@@ -15,6 +15,7 @@ import com.brekquater.api.rules.evidence.UnreadableReportException;
 import com.brekquater.api.rules.evidence.VulnerabilityReport;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -144,7 +145,7 @@ final class BuildReportFiles {
 
     private String testReportNames() {
         return locations.testResults().stream()
-                .filter(location -> !testReportsIn(location).toList().isEmpty())
+                .filter(location -> testReportsIn(location).findAny().isPresent())
                 .map(location -> location.getFileName().toString())
                 .collect(Collectors.joining(", "));
     }
@@ -156,6 +157,7 @@ final class BuildReportFiles {
     /** Thrown, already logged, when one report cannot be used. */
     private static final class UnusableReport extends RuntimeException {
 
+        @Serial
         private static final long serialVersionUID = 1L;
 
         UnusableReport() {

@@ -38,7 +38,8 @@ public final class JunitXmlReport {
         private boolean rootSeen;
         private int tests;
         private int skipped;
-        private Optional<FailedTest> current = Optional.empty();
+        private boolean insideTestCase;
+        private FailedTest testCase = new FailedTest("", "");
         private boolean currentFailed;
         private boolean currentSkipped;
 
@@ -47,10 +48,11 @@ public final class JunitXmlReport {
             String name = element.getLocalName();
             requireRoot(name);
             if (name.equals(TEST_CASE)) {
-                current = Optional.of(new FailedTest(attribute(element, "classname"), attribute(element, "name")));
+                testCase = new FailedTest(attribute(element, "classname"), attribute(element, "name"));
+                insideTestCase = true;
                 currentFailed = false;
                 currentSkipped = false;
-            } else if (current.isPresent()) {
+            } else if (insideTestCase) {
                 currentFailed |= FAILED.contains(name);
                 currentSkipped |= name.equals(SKIPPED);
             }
@@ -58,9 +60,9 @@ public final class JunitXmlReport {
 
         @Override
         public void end(String name) {
-            if (name.equals(TEST_CASE)) {
-                current.ifPresent(this::count);
-                current = Optional.empty();
+            if (name.equals(TEST_CASE) && insideTestCase) {
+                count();
+                insideTestCase = false;
             }
         }
 
@@ -75,7 +77,7 @@ public final class JunitXmlReport {
             rootSeen = true;
         }
 
-        private void count(FailedTest testCase) {
+        private void count() {
             tests++;
             if (currentFailed) {
                 failed.add(testCase);

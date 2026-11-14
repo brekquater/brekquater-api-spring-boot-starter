@@ -60,7 +60,8 @@ public record AssessmentResult(
         private final List<RuleOutcome> outcomes = new ArrayList<>();
         private final List<FailedRule> failedRules = new ArrayList<>();
         private final List<SkippedRule> skippedRules = new ArrayList<>();
-        private Optional<DocumentSummary> document = Optional.empty();
+        // Null until the engine reports a document; build() turns it into the result's Optional.
+        private DocumentSummary document;
         private BuildReports reports = BuildReports.none();
 
         private Builder(String ruleSetVersion) {
@@ -68,7 +69,7 @@ public record AssessmentResult(
         }
 
         void document(DocumentSummary summary) {
-            document = Optional.of(summary);
+            document = summary;
         }
 
         void reports(BuildReports buildReports) {
@@ -89,8 +90,9 @@ public record AssessmentResult(
         }
 
         AssessmentResult build() {
+            Optional<DocumentSummary> assessed = Optional.ofNullable(document);
             return new AssessmentResult(
-                    ruleSetVersion, document, reports, findings, outcomes, failedRules, skippedRules);
+                    ruleSetVersion, assessed, reports, findings, outcomes, failedRules, skippedRules);
         }
 
         private static Set<Category> noCategories() {

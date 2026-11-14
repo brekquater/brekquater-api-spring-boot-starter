@@ -34,11 +34,10 @@ final class CachingAssessmentService implements AssessmentService {
         return cache.get()
                 .filter(cached -> cached.key().equals(key))
                 .map(CachedAssessment::assessment)
-                .orElseGet(() -> assessAndRemember(document, key));
+                .orElseGet(() -> remember(key, delegate.assess(document)));
     }
 
-    private Assessment assessAndRemember(Optional<OpenApiDocument> document, String key) {
-        Assessment assessment = delegate.assess(document);
+    private Assessment remember(String key, Assessment assessment) {
         cache.set(Optional.of(new CachedAssessment(key, assessment)));
         return assessment;
     }

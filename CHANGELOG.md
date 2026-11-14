@@ -40,3 +40,9 @@ The first release. Everything below is new.
 
 - A demo application whose `good` profile passes every rule and whose `bad` profile breaks every rule a springdoc application can break, with made-up sample reports.
 - Documentation site, CI on Java 17, 21 and 25, a DCO check, OpenSSF Scorecard, Dependabot, and a release workflow that signs and uploads to Maven Central only on an approved, tagged run.
+
+### Security
+
+- Built against Jackson 3.1.8 and 2.21.8, which fix CVE-2026-110879 (CVSS 9.8). Spring Boot 4.1.2 still manages 3.1.7 and 2.21.7, and an application's own Spring Boot version decides which Jackson it runs. Until a Spring Boot release manages the fixed versions, set them in your build, for example with the properties `jackson-bom.version` and `jackson-2-bom.version` when you use `spring-boot-starter-parent`.
+
+[Unreleased]: https://github.com/brekquater/brekquater-api-spring-boot-starter/commits/master

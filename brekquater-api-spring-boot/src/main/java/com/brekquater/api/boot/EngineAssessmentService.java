@@ -27,7 +27,8 @@ final class EngineAssessmentService implements AssessmentService {
 
     @Override
     public Assessment assess(Optional<OpenApiDocument> document) {
-        AssessmentResult result = engine.assess(inputs.contextFor(document));
+        AssessmentResult result =
+                engine.assess(document.map(inputs::contextFor).orElseGet(inputs::contextWithoutDocument));
         return new Assessment(result, calculator.score(result), clock.instant());
     }
 

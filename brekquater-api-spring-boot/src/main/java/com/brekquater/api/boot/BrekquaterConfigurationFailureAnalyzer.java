@@ -3,10 +3,12 @@
 
 package com.brekquater.api.boot;
 
+import org.jspecify.annotations.NullMarked;
 import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
 import org.springframework.boot.diagnostics.FailureAnalysis;
 
 /** Explains a startup failure caused by an invalid {@code brekquater.api.*} property. */
+@NullMarked
 final class BrekquaterConfigurationFailureAnalyzer
         extends AbstractFailureAnalyzer<InvalidBrekquaterConfigurationException> {
 
