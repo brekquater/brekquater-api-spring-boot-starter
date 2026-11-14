@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  *
  * @param ruleSetVersion the version of the rules that produced the result
  * @param document the assessed OpenAPI document, or empty when there was none
+ * @param reports the build reports the rules could read, and those that were missing or unreadable
  * @param findings every finding that was not suppressed
  * @param outcomes the pass rate of each evaluated rule
  * @param failedRules the rules that threw
@@ -25,12 +27,14 @@ import java.util.stream.Collectors;
 public record AssessmentResult(
         String ruleSetVersion,
         Optional<DocumentSummary> document,
+        BuildReports reports,
         List<Finding> findings,
         List<RuleOutcome> outcomes,
         List<FailedRule> failedRules,
         List<SkippedRule> skippedRules) {
 
     public AssessmentResult {
+        Objects.requireNonNull(reports, "reports");
         findings = findings.stream().sorted(Finding.REPORT_ORDER).toList();
         outcomes = List.copyOf(outcomes);
         failedRules = List.copyOf(failedRules);
@@ -56,14 +60,20 @@ public record AssessmentResult(
         private final List<RuleOutcome> outcomes = new ArrayList<>();
         private final List<FailedRule> failedRules = new ArrayList<>();
         private final List<SkippedRule> skippedRules = new ArrayList<>();
-        private Optional<DocumentSummary> document = Optional.empty();
+        // Null until the engine reports a document; build() turns it into the result's Optional.
+        private DocumentSummary document;
+        private BuildReports reports = BuildReports.none();
 
         private Builder(String ruleSetVersion) {
             this.ruleSetVersion = ruleSetVersion;
         }
 
         void document(DocumentSummary summary) {
-            document = Optional.of(summary);
+            document = summary;
+        }
+
+        void reports(BuildReports buildReports) {
+            reports = buildReports;
         }
 
         void evaluated(Rule rule, RuleResult result) {
@@ -80,7 +90,9 @@ public record AssessmentResult(
         }
 
         AssessmentResult build() {
-            return new AssessmentResult(ruleSetVersion, document, findings, outcomes, failedRules, skippedRules);
+            Optional<DocumentSummary> assessed = Optional.ofNullable(document);
+            return new AssessmentResult(
+                    ruleSetVersion, assessed, reports, findings, outcomes, failedRules, skippedRules);
         }
 
         private static Set<Category> noCategories() {

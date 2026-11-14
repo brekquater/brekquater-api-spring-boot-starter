@@ -12,7 +12,14 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import tools.jackson.databind.JsonNode;
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+// The sample reports stand in for the demo's own, which are still being written while these tests run.
+@SpringBootTest(
+        webEnvironment = WebEnvironment.RANDOM_PORT,
+        properties = {
+            "brekquater.api.reports.coverage=samples/good/jacoco.xml",
+            "brekquater.api.reports.test-results=samples/good",
+            "brekquater.api.reports.vulnerabilities=samples/good/osv-scanner.json"
+        })
 @ActiveProfiles({"dev", "good"})
 class GoodApiTest {
 
@@ -39,6 +46,16 @@ class GoodApiTest {
         assertThat(assessment.get("score").get("overall").asInt()).isEqualTo(100);
         assertThat(assessment.get("securityRating").asString()).isEqualTo("A");
         assertThat(assessment.get("document").get("title").asString()).isEqualTo("Orders API");
+    }
+
+    @Test
+    void assessesTheBuildEvidenceToo() {
+        JsonNode assessment = new DemoHttpClient(port).assessment();
+
+        assertThat(assessment.get("inputs"))
+                .extracting(input -> input.get("status").asString())
+                .containsOnly("READ");
+        assertThat(assessment.get("score").get("assessedCategories").asInt()).isEqualTo(6);
     }
 
     @Test

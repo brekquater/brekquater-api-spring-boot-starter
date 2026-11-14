@@ -7,14 +7,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.brekquater.api.rules.AssessmentContext;
 import com.brekquater.api.rules.AssessmentResult;
+import com.brekquater.api.rules.BuildReport;
+import com.brekquater.api.rules.BuildReports;
 import com.brekquater.api.rules.Category;
+import com.brekquater.api.rules.Coverage;
+import com.brekquater.api.rules.CoverageCounter;
 import com.brekquater.api.rules.Evidence;
+import com.brekquater.api.rules.FailedTest;
 import com.brekquater.api.rules.Finding;
+import com.brekquater.api.rules.ReportFile;
 import com.brekquater.api.rules.RuleEngine;
 import com.brekquater.api.rules.RuleInput;
 import com.brekquater.api.rules.RuleOutcome;
 import com.brekquater.api.rules.RuleRegistry;
 import com.brekquater.api.rules.Severity;
+import com.brekquater.api.rules.TestResults;
 import com.brekquater.api.rules.catalogue.OperationDocumentsErrorResponse;
 import com.brekquater.api.rules.catalogue.OperationHasSummaryOrDescription;
 import com.brekquater.api.rules.openapi.OpenApiFixture;
@@ -47,6 +54,16 @@ class JsonReportWriterTest {
                     '400': {description: Bad Request}
             """);
 
+    private static final ReportFile REPORT_FILE = new ReportFile("jacoco.xml", Instant.parse("2026-11-13T09:58:00.5Z"));
+
+    private static final BuildReports TESTED_BUILD = new BuildReports(
+            BuildReport.read(
+                    new Coverage(new CoverageCounter(22, 78), new CoverageCounter(35, 65), List.of()), REPORT_FILE),
+            BuildReport.read(
+                    new TestResults(10, 2, List.of(new FailedTest("com.example.OrdersTest", "listsOrders"))),
+                    new ReportFile("surefire-reports", REPORT_FILE.modifiedAt())),
+            BuildReport.unreadable(new ReportFile("osv-scanner.json", REPORT_FILE.modifiedAt())));
+
     private final RuleEngine engine = new RuleEngine(
             new RuleRegistry(List.of(new OperationHasSummaryOrDescription(), new OperationDocumentsErrorResponse())));
 
@@ -61,7 +78,15 @@ class JsonReportWriterTest {
                   "ruleSetVersion": "development",
                   "status": "ASSESSED",
                   "document": {"openapi": "3.1.0", "title": "Orders API", "version": "1.0", "operations": 2},
-                  "inputs": [{"type": "OPENAPI", "status": "READ"}],
+                  "inputs": [
+                    {"type": "OPENAPI", "status": "READ"},
+                    {"type": "COVERAGE", "status": "MISSING", "hint": "Run the build with the jacoco-maven-plugin \
+                report goal, for example ./mvnw verify. See https://starter.brekquater.com/api/reports"},
+                    {"type": "TEST_RESULTS", "status": "MISSING", "hint": "Run the tests, for example ./mvnw verify, \
+                to write Surefire reports. See https://starter.brekquater.com/api/reports"},
+                    {"type": "VULNERABILITIES", "status": "MISSING", "hint": "Run OSV-Scanner or OWASP \
+                Dependency-Check with JSON output. See https://starter.brekquater.com/api/reports"}
+                  ],
                   "score": {"overall": 50, "grade": "D", "assessedCategories": 2, "totalCategories": 8},
                   "securityRating": null,
                   "blockers": 0,
@@ -128,8 +153,8 @@ class JsonReportWriterTest {
         assertThat(report.get("status").asString()).isEqualTo("NOT_ASSESSED");
         assertThat(report.get("reason").asString()).isEqualTo("NO_OPENAPI_DOCUMENT");
         assertThat(report.get("document").isNull()).isTrue();
-        assertThat(report.get("inputs")).isEqualTo(JSON.readTree("""
-                [{"type": "OPENAPI", "status": "MISSING"}]
+        assertThat(report.get("inputs").get(0)).isEqualTo(JSON.readTree("""
+                {"type": "OPENAPI", "status": "MISSING"}
                 """));
         assertThat(report.get("score")).isEqualTo(JSON.readTree("""
                 {"overall": null, "grade": null, "assessedCategories": 0, "totalCategories": 8}
@@ -143,13 +168,49 @@ class JsonReportWriterTest {
     }
 
     @Test
+    void namesEachBuildReportByFileNameAndSaysWhenItWasWritten() {
+        JsonNode report = JSON.readTree(write(ORDERS_API.withReports(TESTED_BUILD)));
+
+        assertThat(report.get("inputs").get(1)).isEqualTo(JSON.readTree("""
+                {"type": "COVERAGE", "status": "READ", "file": "jacoco.xml", "modifiedAt": "2026-11-13T09:58:00Z"}
+                """));
+        assertThat(report.get("inputs").get(3)).isEqualTo(JSON.readTree("""
+                {"type": "VULNERABILITIES", "status": "UNREADABLE", "file": "osv-scanner.json",
+                 "modifiedAt": "2026-11-13T09:58:00Z", "hint": "The report was found but could not be read; the \
+                application log says why. See https://starter.brekquater.com/api/reports"}
+                """));
+    }
+
+    @Test
+    void summarisesCoverageAndTestResultsInTheTestingCategory() {
+        JsonNode report = JSON.readTree(write(ORDERS_API.withReports(TESTED_BUILD)));
+
+        assertThat(report.get("categories").get(5).get("metrics")).isEqualTo(JSON.readTree("""
+                {"lineCoverage": 78, "branchCoverage": 65, "testsPassed": 7, "testsFailed": 1, "testsSkipped": 2}
+                """));
+    }
+
+    @Test
+    void leavesOutBranchCoverageWhenTheProjectHasNoBranches() {
+        Coverage noBranches = new Coverage(new CoverageCounter(1, 9), new CoverageCounter(0, 0), List.of());
+        BuildReports reports = new BuildReports(
+                BuildReport.read(noBranches, REPORT_FILE), BuildReport.missing(), BuildReport.missing());
+
+        JsonNode report = JSON.readTree(write(ORDERS_API.withReports(reports)));
+
+        assertThat(report.get("categories").get(5).get("metrics")).isEqualTo(JSON.readTree("""
+                {"lineCoverage": 90}
+                """));
+    }
+
+    @Test
     void countsBlockersAndRatesSecurityWhenASecurityRuleWasEvaluated() {
         Evidence evidence = new Evidence(RuleInput.OPENAPI, "/paths/~1orders/get");
         Finding blocker = new Finding(
                 "BQ-TST-901", Severity.BLOCKER, Category.SECURITY, "Unprotected.", evidence, "Protect it.", "https://x");
         RuleOutcome outcome = new RuleOutcome("BQ-TST-901", Severity.BLOCKER, Category.SECURITY, 2, 1);
         AssessmentResult result = new AssessmentResult(
-                "test", Optional.empty(), List.of(blocker), List.of(outcome), List.of(), List.of());
+                "test", Optional.empty(), BuildReports.none(), List.of(blocker), List.of(outcome), List.of(), List.of());
 
         JsonNode report = JSON.readTree(write(result));
 

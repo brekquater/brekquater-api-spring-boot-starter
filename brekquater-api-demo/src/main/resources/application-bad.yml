@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright Brekquater
+
+# The bad API also comes with bad build evidence: made-up reports that break the coverage, test and vulnerability
+# rules. Paths are relative to the demo module, the working directory of ./mvnw spring-boot:run.
+brekquater:
+  api:
+    reports:
+      coverage: samples/bad/jacoco.xml
+      test-results: samples/bad
+      vulnerabilities: samples/bad/osv-scanner.json

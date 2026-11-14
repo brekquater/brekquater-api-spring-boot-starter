@@ -15,6 +15,7 @@ class ArchitectureTest {
     private static final String ADAPTER_PACKAGE = "com.brekquater.api.rules.openapi..";
     private static final String CATALOGUE_PACKAGE = "com.brekquater.api.rules.catalogue..";
     private static final String REPORT_PACKAGE = "com.brekquater.api.rules.report..";
+    private static final String EVIDENCE_PACKAGE = "com.brekquater.api.rules.evidence..";
 
     private static final JavaClasses PRODUCTION_CLASSES = new ClassFileImporter()
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
@@ -52,13 +53,24 @@ class ArchitectureTest {
     }
 
     @Test
-    void onlyTheReportPackageTouchesTheJsonLibrary() {
+    void onlyTheReportAndEvidencePackagesTouchTheJsonLibrary() {
         noClasses()
                 .that()
-                .resideOutsideOfPackage(REPORT_PACKAGE)
+                .resideOutsideOfPackages(REPORT_PACKAGE, EVIDENCE_PACKAGE)
                 .should()
                 .dependOnClassesThat()
                 .resideInAnyPackage("tools.jackson..", "com.fasterxml.jackson..")
+                .check(PRODUCTION_CLASSES);
+    }
+
+    @Test
+    void rulesSeeBuildReportsOnlyThroughTheAssessmentContext() {
+        noClasses()
+                .that()
+                .resideInAPackage(CATALOGUE_PACKAGE)
+                .should()
+                .dependOnClassesThat()
+                .resideInAPackage(EVIDENCE_PACKAGE)
                 .check(PRODUCTION_CLASSES);
     }
 }

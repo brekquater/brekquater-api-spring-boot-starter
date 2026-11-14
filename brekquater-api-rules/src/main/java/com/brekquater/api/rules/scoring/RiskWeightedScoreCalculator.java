@@ -6,6 +6,7 @@ package com.brekquater.api.rules.scoring;
 import com.brekquater.api.rules.AssessmentResult;
 import com.brekquater.api.rules.Category;
 import com.brekquater.api.rules.RuleOutcome;
+import com.brekquater.api.rules.Severity;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -23,6 +24,10 @@ import java.util.stream.Collectors;
 /**
  * Pass-rate scoring in the style of the OpenSSF Scorecard aggregate: each rule scores the share of its targets
  * that pass, and rules are averaged with a weight that follows their severity.
+ *
+ * <p>A blocker caps the grade at F, whatever the score: one unprotected operation or critical vulnerability
+ * outweighs any number of tidy ones, much as SSL Labs grades a server with a critical flaw F. The score itself is
+ * kept, so progress on everything else stays visible.
  *
  * <p>A pass rate does not punish an API for being large, unlike a count of findings. All arithmetic is exact
  * decimal and is rounded only when a number is reported, so results are identical on every platform.
@@ -44,10 +49,13 @@ final class RiskWeightedScoreCalculator implements ScoreCalculator {
         Set<Category> assessed = result.assessedCategories();
         List<CategoryScore> categories = Arrays.stream(Category.values())
                 .map(category -> new CategoryScore(
-                        category, assessed.contains(category), rounded(Optional.ofNullable(exactScores.get(category)))))
+                        category, assessed.contains(category), roundedScoreOf(category, exactScores)))
                 .toList();
-        OptionalInt overall = rounded(mean(exactScores.values()));
-        return new Score(overall, grade(overall), categories);
+        OptionalInt overall = mean(exactScores.values()).stream()
+                .mapToInt(RiskWeightedScoreCalculator::rounded)
+                .findFirst();
+        Optional<Grade> grade = overall.stream().mapToObj(score -> gradeOf(score, result)).findFirst();
+        return new Score(overall, grade, categories);
     }
 
     private Map<Category, BigDecimal> exactCategoryScores(AssessmentResult result) {
@@ -73,8 +81,12 @@ final class RiskWeightedScoreCalculator implements ScoreCalculator {
         return policy.weightOf(outcome.severity());
     }
 
-    private Optional<Grade> grade(OptionalInt overall) {
-        return overall.isPresent() ? Optional.of(policy.gradeOf(overall.getAsInt())) : Optional.empty();
+    private Grade gradeOf(int overall, AssessmentResult result) {
+        return hasBlocker(result) ? Grade.F : policy.gradeOf(overall);
+    }
+
+    private static boolean hasBlocker(AssessmentResult result) {
+        return result.findings().stream().anyMatch(finding -> finding.severity() == Severity.BLOCKER);
     }
 
     private static BigDecimal passRate(RuleOutcome outcome) {
@@ -95,9 +107,13 @@ final class RiskWeightedScoreCalculator implements ScoreCalculator {
         return Optional.of(total.divide(BigDecimal.valueOf(scores.size()), PRECISION));
     }
 
-    private static OptionalInt rounded(Optional<BigDecimal> exactScore) {
-        return exactScore
-                .map(score -> OptionalInt.of(score.setScale(0, RoundingMode.HALF_UP).intValueExact()))
-                .orElse(OptionalInt.empty());
+    private static OptionalInt roundedScoreOf(Category category, Map<Category, BigDecimal> exactScores) {
+        return Optional.ofNullable(exactScores.get(category)).stream()
+                .mapToInt(RiskWeightedScoreCalculator::rounded)
+                .findFirst();
+    }
+
+    private static int rounded(BigDecimal exactScore) {
+        return exactScore.setScale(0, RoundingMode.HALF_UP).intValueExact();
     }
 }

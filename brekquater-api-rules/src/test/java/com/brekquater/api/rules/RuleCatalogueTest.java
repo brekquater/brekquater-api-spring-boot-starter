@@ -8,6 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,15 @@ class RuleCatalogueTest {
                 .exists()
                 .content()
                 .startsWith("# " + rule.id()));
+    }
+
+    @Test
+    void theCatalogueListsEveryRuleWithItsSeverity() throws IOException {
+        String catalogue = Files.readString(RULE_PAGES.resolve("index.md"));
+
+        assertThat(rules).allSatisfy(rule -> assertThat(catalogue)
+                .containsPattern("\\| \\[" + rule.id() + "]\\(" + rule.id() + "\\.md\\) \\| [^|]+ \\| "
+                        + rule.severity() + " \\|"));
     }
 
     @Test

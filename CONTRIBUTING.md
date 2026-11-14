@@ -24,11 +24,25 @@ To run the demo application:
 ./mvnw -pl brekquater-api-demo spring-boot:run
 ```
 
-Then open `http://localhost:8080/swagger-ui.html`, and `http://localhost:8080/brekquater/api/assessment` for the assessment. The demo starts with the `dev` and `good` profiles. To see an API that breaks the rules:
+Then open `http://localhost:8080/swagger-ui.html`, and `http://localhost:8080/brekquater/api/assessment` for the assessment. The demo starts with the `dev` and `good` profiles; after `./mvnw verify` it also shows its own coverage and test results. To see an API that breaks the rules, with made-up coverage, test and vulnerability reports from `brekquater-api-demo/samples/bad`:
 
 ```bash
 ./mvnw -pl brekquater-api-demo spring-boot:run -Dspring-boot.run.profiles=dev,bad
 ```
+
+## Documentation site
+
+The pages under `docs/` are published with MkDocs and Material for MkDocs. To preview them, with Python 3.11 or later:
+
+```bash
+pip install --require-hashes --no-deps -r docs/requirements.txt
+```
+
+```bash
+mkdocs serve
+```
+
+The `Docs` workflow builds the site with `--strict`, so a broken link fails the pull request. Never rename or move a page under `docs/rules/`: every finding links to it.
 
 ## Sign your commits (DCO)
 

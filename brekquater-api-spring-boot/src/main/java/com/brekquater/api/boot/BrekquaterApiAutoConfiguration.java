@@ -83,9 +83,23 @@ public final class BrekquaterApiAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    AssessmentService brekquaterAssessmentService(RuleRegistry registry, ScoreCalculator calculator) {
-        AssessmentService engine = new EngineAssessmentService(new RuleEngine(registry), calculator, Clock.systemUTC());
-        return new CachingAssessmentService(engine);
+    AssessmentService brekquaterAssessmentService(
+            RuleRegistry registry, ScoreCalculator calculator, BrekquaterApiProperties properties) {
+        AssessmentInputs inputs = new AssessmentInputs(
+                new BuildReportFiles(ReportLocations.of(properties.reports())),
+                properties.thresholds().coverageTargets());
+        AssessmentService engine = new EngineAssessmentService(new EngineAssessmentService.Collaborators(
+                inputs, new RuleEngine(registry), calculator, Clock.systemUTC()));
+        return new CachingAssessmentService(
+                engine, document -> document.map(inputs::fingerprintOf).orElseGet(inputs::fingerprintWithoutDocument));
+    }
+
+    // Reads the environment rather than the bound properties, so the server's context path is the one springdoc sees.
+    @Bean
+    @ConditionalOnBooleanProperty(name = "brekquater.api.strict")
+    StrictModeCheck brekquaterStrictModeCheck(
+            OpenApiDocumentSource source, AssessmentService service, Environment environment) {
+        return new StrictModeCheck(source, service, environment.getProperty("server.servlet.context-path", ""));
     }
 
     @Bean

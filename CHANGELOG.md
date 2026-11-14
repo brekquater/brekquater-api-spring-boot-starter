@@ -4,24 +4,45 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+The first release. Everything below is new.
+
 ### Added
 
-- Multi-module Maven build with the Maven Wrapper: `brekquater-api-rules`, `brekquater-api-spring-boot`, `brekquater-api-spring-boot-starter` and `brekquater-api-demo`.
-- Demo application that serves a small orders API with Swagger UI.
-- CI on Java 17, 21 and 25, a DCO sign-off check, OpenSSF Scorecard and Dependabot.
-- Licence, notice and community files.
-- Rule engine in `brekquater-api-rules`: the `Rule` SPI, deterministic and failure-isolated evaluation, `x-brekquater-ignore` suppression, risk-weighted pass-rate scoring with a security rating, and the JSON assessment report (`schemaVersion` 1).
-- First rules, each with a documentation page: `BQ-DOC-001`, `BQ-ERR-001` and `BQ-API-001`.
+**In your application**
 
-- All 15 remaining core rules, each with a documentation page: `BQ-API-002` to `BQ-API-005`, `BQ-DES-001`, `BQ-DES-002`, `BQ-DOC-002` to `BQ-DOC-004`, `BQ-ERR-002`, `BQ-SEC-001`, `BQ-SEC-002`, `BQ-NAM-001` to `BQ-NAM-003`.
-- Spring Boot auto-configuration: reads springdoc's document in-process, assesses it once per change, and serves the result at `/brekquater/api/assessment`.
-- The assessment is served only in the `dev` and `local` profiles unless `brekquater.api.panel.mode` says otherwise; `authenticated` mode checks Spring Security's context without registering a filter chain.
-- `brekquater.api.*` properties with IDE metadata, validation, and a startup failure report that names the property and the fix. See `docs/configuration.md`.
-- Demo profiles: `good` passes every rule; `bad` breaks every rule a springdoc application can break.
-- The assessment inside Swagger UI: a collapsible panel with the score, grade, security rating, category scores and findings grouped by severity, in light and dark themes. The same panel is served as a page of its own at `/brekquater/api`.
-- A startup warning when Swagger UI or a public assessment is reachable outside the `dev` and `local` profiles.
-- The panel keeps working when the application uses Spring's path-segment API versioning.
+- One dependency, `brekquater-api-spring-boot-starter`, for Spring Boot 4.1 with Spring MVC and springdoc-openapi 3.2, on Java 17, 21 and 25.
+- An API maturity panel inside Swagger UI: the score, a grade, a security rating, a score per category, and the findings grouped by severity, each with its location, a Spring-specific fix and a link to its rule page. Light and dark themes.
+- The same panel as a page of its own at `/brekquater/api`, and the assessment as versioned JSON (`schemaVersion` 1) at `/brekquater/api/assessment`.
+- Scoring as a weighted pass rate in the style of the OpenSSF Scorecard, with categories that could not be assessed left out instead of counted as perfect. Any blocker finding caps the grade at F.
+- Strict mode (`brekquater.api.strict=true`): blocker findings stop startup before the web server accepts connections, so a `@SpringBootTest` fails in CI. Off by default.
 
-### Fixed
+**Rules**
 
-- The demo jar is now executable (`java -jar`).
+- 25 rules, each with a documentation page: design (`BQ-API-001` to `005`, `BQ-DES-001`, `002`), documentation (`BQ-DOC-001` to `004`), security (`BQ-SEC-001`, `002`), errors (`BQ-ERR-001`, `002`), naming (`BQ-NAM-001` to `003`), testing (`BQ-TST-001` to `003`) and known vulnerabilities (`BQ-VUL-001` to `004`). See `docs/rules/index.md`.
+- Opt-outs per operation with `x-brekquater-ignore`, and per application by rule ID.
+- Your own rules: declare a `Rule` bean and it runs next to the built-in ones.
+
+**Build evidence**
+
+- Reads the JaCoCo, Surefire, Failsafe, OSV-Scanner and OWASP Dependency-Check reports your build already writes, from Maven's default locations or configured paths. It never calls a vulnerability database itself. See `docs/reports.md`.
+
+**Safety**
+
+- The panel and endpoints exist only in the `dev` and `local` profiles unless `brekquater.api.panel.mode` says otherwise. `authenticated` mode checks Spring Security's context without registering or changing a filter chain.
+- A startup warning when Swagger UI or a public assessment is reachable outside those profiles.
+- No outbound network calls, no telemetry, no stack traces or secrets in responses. Report files are named by file name only.
+
+**Configuration**
+
+- `brekquater.api.*` properties with IDE metadata and validation: an invalid value stops startup with a report that names the property and the fix. See `docs/configuration.md`.
+
+**Project**
+
+- A demo application whose `good` profile passes every rule and whose `bad` profile breaks every rule a springdoc application can break, with made-up sample reports.
+- Documentation site, CI on Java 17, 21 and 25, a DCO check, OpenSSF Scorecard, Dependabot, and a release workflow that signs and uploads to Maven Central only on an approved, tagged run.
+
+### Security
+
+- Built against Jackson 3.1.8 and 2.21.8, which fix CVE-2026-110879 (CVSS 9.8). Spring Boot 4.1.2 still manages 3.1.7 and 2.21.7, and an application's own Spring Boot version decides which Jackson it runs. Until a Spring Boot release manages the fixed versions, set them in your build, for example with the properties `jackson-bom.version` and `jackson-2-bom.version` when you use `spring-boot-starter-parent`.
+
+[Unreleased]: https://github.com/brekquater/brekquater-api-spring-boot-starter/commits/master

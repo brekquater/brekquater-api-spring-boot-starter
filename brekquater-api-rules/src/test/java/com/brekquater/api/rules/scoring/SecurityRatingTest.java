@@ -6,6 +6,7 @@ package com.brekquater.api.rules.scoring;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.brekquater.api.rules.AssessmentResult;
+import com.brekquater.api.rules.BuildReports;
 import com.brekquater.api.rules.Category;
 import com.brekquater.api.rules.Evidence;
 import com.brekquater.api.rules.Finding;
@@ -81,6 +82,6 @@ class SecurityRatingTest {
 
     private static AssessmentResult resultOf(RuleOutcome outcome, Finding... findings) {
         return new AssessmentResult(
-                "test", Optional.empty(), List.of(findings), List.of(outcome), List.of(), List.of());
+                "test", Optional.empty(), BuildReports.none(), List.of(findings), List.of(outcome), List.of(), List.of());
     }
 }

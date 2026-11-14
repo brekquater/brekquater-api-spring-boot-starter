@@ -22,6 +22,7 @@
   <properties>
     <!-- The demo is a sample, not a library, so it is never published. -->
     <maven.deploy.skip>true</maven.deploy.skip>
+    <central.skipPublishing>true</central.skipPublishing>
   </properties>
 
   <dependencies>
@@ -49,6 +50,24 @@
 
   <build>
     <plugins>
+      <!-- Writes target/site/jacoco/jacoco.xml, so the good profile shows the demo's own coverage after a build. -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
