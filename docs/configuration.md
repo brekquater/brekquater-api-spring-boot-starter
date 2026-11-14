@@ -20,9 +20,19 @@ A value the starter cannot use stops the application at startup. The startup rep
 | `brekquater.api.score.grades.a` | `90` | Lowest score for grade A. | None. |
 | `brekquater.api.score.grades.b` | `75` | Lowest score for grade B. | None. |
 | `brekquater.api.score.grades.c` | `60` | Lowest score for grade C. | None. |
-| `brekquater.api.score.grades.d` | `40` | Lowest score for grade D. Anything lower is F. | None. |
+| `brekquater.api.score.grades.d` | `40` | Lowest score for grade D. Anything lower is F. Any blocker finding also makes the grade F; see below. | None. |
+| `brekquater.api.reports.coverage` | `target/site/jacoco/jacoco.xml` | JaCoCo XML report. | Low. Only the file name and its age appear in the assessment, never the directory. |
+| `brekquater.api.reports.test-results` | `target/surefire-reports`, `target/failsafe-reports` | Surefire or Failsafe reports: files, or directories whose `TEST-*.xml` files are all read. | Low. Failed tests are shown by class and method name. |
+| `brekquater.api.reports.vulnerabilities` | `target/osv-scanner.json`, then `target/dependency-check-report.json` | OSV-Scanner or OWASP Dependency-Check JSON report. The scanner is recognised from the content. | **Medium.** The assessment then lists the vulnerable dependencies of your application. |
+| `brekquater.api.thresholds.line-coverage` | `80` | Line coverage, in whole percent, that `BQ-TST-001` expects. | None. |
+| `brekquater.api.thresholds.branch-coverage` | `70` | Branch coverage, in whole percent, that `BQ-TST-002` expects. | None. |
+| `brekquater.api.strict` | `false` | Whether blocker findings stop the application at startup. See [Strict mode](#strict-mode). | None. It makes the starter stricter, never more open. |
 
-Weights must be 0 or more. Grade minimums must be between 0 and 100, with `a >= b >= c >= d`.
+Weights must be 0 or more. Grade minimums must be between 0 and 100, with `a >= b >= c >= d`. Coverage thresholds must be between 0 and 100.
+
+Report paths are relative to the working directory unless they are absolute. A report that is not found is never an error: the rules that need it are skipped, and the assessment says how to produce it. See [reports](reports.md).
+
+While any blocker finding remains, such as an operation without security or a Critical known vulnerability, the grade is F whatever the score. The score itself still counts everything else, so progress stays visible; the panel shows "capped by blockers" next to the grade. Suppress or fix the blocker to lift the cap.
 
 The default weights are the OpenSSF Scorecard risk weights for Critical, High and Medium checks. They are a convention, not a measurement; change them if your team values things differently.
 
@@ -38,6 +48,24 @@ brekquater:
       severity-overrides:
         BQ-DOC-002: MAJOR
 ```
+
+## Strict mode
+
+Strict mode turns blocker findings into a failed startup. It is meant for CI, where a `@SpringBootTest` then fails the build:
+
+```yaml
+brekquater:
+  api:
+    strict: true
+```
+
+- It runs once, after every bean is ready and before the web server accepts connections, so a failing application never serves a request.
+- Blockers are the findings of severity BLOCKER: operations without security (`BQ-SEC-001`) and dependencies with a Critical known vulnerability (`BQ-VUL-001`), plus any security rule you raise to BLOCKER.
+- The startup report lists up to ten blockers with their location, and how to fix or suppress them.
+- It does not depend on the panel mode or the profile: it also runs where the panel is disabled.
+- Without it, nothing is assessed at startup; the assessment runs on the first request.
+
+The document is read with a stand-in request for `http://localhost{context-path}`, because no real request exists yet. Only the `servers` entry of the document depends on the request, and no rule reads it.
 
 ## Exposure
 

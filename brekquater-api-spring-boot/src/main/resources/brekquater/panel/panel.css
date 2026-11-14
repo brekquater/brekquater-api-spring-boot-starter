@@ -322,6 +322,70 @@ html.dark-mode .bq-panel {
   font-size: 12px;
 }
 
+/* Build evidence */
+
+.bq-panel .bq-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+}
+
+.bq-panel .bq-card {
+  padding: 8px 12px;
+  border: 1px solid var(--bq-border);
+  border-radius: 6px;
+  background: var(--bq-subtle);
+}
+
+.bq-panel .bq-card-title {
+  margin: 0 0 4px;
+  color: var(--bq-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bq-panel .bq-card-value {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.bq-panel .bq-facts-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 12px;
+  margin: 0;
+}
+
+.bq-panel .bq-facts-list dt {
+  color: var(--bq-muted);
+}
+
+.bq-panel .bq-facts-list dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.bq-panel .bq-band-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bq-panel .bq-band-counts li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bq-panel .bq-report-ages {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+
 /* Findings */
 
 .bq-panel .bq-group {

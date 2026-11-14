@@ -50,13 +50,56 @@ class BadApiTest {
     }
 
     @Test
-    void everyFindingPointsAtTheDocumentAndLinksToItsRulePage() {
+    void everyFindingLinksToItsRulePage() {
         JsonNode findings = new DemoHttpClient(port).assessment().get("findings");
 
-        assertThat(findings).allSatisfy(finding -> {
-            assertThat(finding.get("evidence").get("location").asString()).startsWith("/");
-            assertThat(finding.get("docUrl").asString())
-                    .isEqualTo("https://starter.brekquater.com/api/rules/" + finding.get("ruleId").asString());
-        });
+        assertThat(findings).allSatisfy(finding -> assertThat(finding.get("docUrl").asString())
+                .isEqualTo("https://starter.brekquater.com/api/rules/" + finding.get("ruleId").asString()));
+    }
+
+    @Test
+    void documentFindingsPointIntoTheDocumentAndReportFindingsNameNoDirectory() {
+        JsonNode findings = new DemoHttpClient(port).assessment().get("findings");
+
+        assertThat(findings)
+                .filteredOn(finding -> source(finding).equals("OPENAPI"))
+                .allSatisfy(finding -> assertThat(location(finding)).startsWith("/"));
+        assertThat(findings)
+                .filteredOn(finding -> !source(finding).equals("OPENAPI"))
+                .isNotEmpty()
+                .allSatisfy(finding -> assertThat(location(finding)).doesNotContain("samples"));
+    }
+
+    @Test
+    void namesTheSampleReportsByFileNameOnly() {
+        JsonNode inputs = new DemoHttpClient(port).assessment().get("inputs");
+
+        assertThat(inputs)
+                .filteredOn(input -> input.has("file"))
+                .extracting(input -> input.get("file").asString())
+                .containsExactly("jacoco.xml", "bad", "osv-scanner.json");
+    }
+
+    @Test
+    void blocksOnTheCriticalVulnerabilityInTheSampleReport() {
+        JsonNode findings = new DemoHttpClient(port).assessment().get("findings");
+
+        assertThat(findings)
+                .filteredOn(finding -> finding.get("ruleId").asString().equals("BQ-VUL-001"))
+                .singleElement()
+                .satisfies(finding -> {
+                    assertThat(finding.get("severity").asString()).isEqualTo("BLOCKER");
+                    assertThat(finding.get("evidence").get("location").asString())
+                            .isEqualTo("pkg:maven/com.example.legacy/xml-parser@1.0.0");
+                    assertThat(finding.get("remediation").asString()).startsWith("Upgrade to 1.4.2 or later.");
+                });
+    }
+
+    private static String source(JsonNode finding) {
+        return finding.get("evidence").get("source").asString();
+    }
+
+    private static String location(JsonNode finding) {
+        return finding.get("evidence").get("location").asString();
     }
 }

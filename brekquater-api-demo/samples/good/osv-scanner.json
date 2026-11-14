@@ -1,0 +1,8 @@
+{
+  "results": [
+    {
+      "source": {"path": "pom.xml", "type": "lockfile"},
+      "packages": []
+    }
+  ]
+}

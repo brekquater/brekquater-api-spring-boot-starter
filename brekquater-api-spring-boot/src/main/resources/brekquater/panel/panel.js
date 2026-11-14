@@ -24,6 +24,15 @@
     DESIGN: "Design", DOCUMENTATION: "Documentation", SECURITY: "Security", ERRORS: "Errors",
     NAMING: "Naming", TESTING: "Testing", CODE_QUALITY: "Code quality", ARCHITECTURE: "Architecture"
   };
+  // Each vulnerability rule checks one CVSS band; its chip uses the colour of the rule's severity.
+  var VULNERABILITY_BANDS = [
+    { ruleId: "BQ-VUL-001", label: "Critical", chip: "bq-blocker" },
+    { ruleId: "BQ-VUL-002", label: "High", chip: "bq-major" },
+    { ruleId: "BQ-VUL-003", label: "Medium", chip: "bq-minor" },
+    { ruleId: "BQ-VUL-004", label: "Low", chip: "bq-info" }
+  ];
+  var REPORT_INPUTS = ["COVERAGE", "TEST_RESULTS", "VULNERABILITIES"];
+  var EVIDENCE_SOURCES = { COVERAGE: "Coverage report", TEST_RESULTS: "Test", VULNERABILITIES: "Dependency" };
   var NOT_ASSESSED_REASONS = {
     MISSING_INPUT: "Input not found",
     NOT_IMPLEMENTED: "Not assessed yet"
@@ -96,7 +105,7 @@
     var facts = element("span", "bq-facts");
     append(facts, [
       element("span", "bq-title", "API maturity"),
-      gradeBadge(score.grade),
+      gradeBadge(score.grade, assessment.blockers),
       securityBadge(assessment.securityRating),
       assessment.blockers > 0 ? element("span", "bq-badge bq-blocker", plural(assessment.blockers, "blocker")) : null,
       element("span", "bq-muted", score.assessedCategories + " of " + score.totalCategories + " categories assessed"),
@@ -130,8 +139,13 @@
     return append(wrapper, [svg, number, element("span", "bq-visually-hidden", label)]);
   }
 
-  function gradeBadge(grade) {
-    return grade ? element("span", "bq-badge bq-grade-" + grade, "Grade " + grade) : null;
+  // A blocker caps the grade at F whatever the score, so say why the two disagree.
+  function gradeBadge(grade, blockers) {
+    if (!grade) {
+      return null;
+    }
+    var text = blockers > 0 ? "Grade " + grade + ", capped by blockers" : "Grade " + grade;
+    return element("span", "bq-badge bq-grade-" + grade, text);
   }
 
   function securityBadge(rating) {
@@ -140,8 +154,90 @@
 
   function body(assessment) {
     var content = element("div", "bq-body");
-    return append(content, [categories(assessment.categories), failedRules(assessment.failedRules),
-      findings(assessment.findings)]);
+    return append(content, [categories(assessment.categories), buildEvidence(assessment),
+      failedRules(assessment.failedRules), findings(assessment.findings)]);
+  }
+
+  // ---- Build evidence: coverage, tests and vulnerabilities from the application's build reports -------------
+
+  function buildEvidence(assessment) {
+    var inputs = {};
+    (assessment.inputs || []).forEach(function (input) { inputs[input.type] = input; });
+    var testing = assessment.categories.filter(function (category) { return category.name === "TESTING"; })[0];
+    var cards = element("div", "bq-cards");
+    append(cards, [testingCard(inputs, (testing && testing.metrics) || {}),
+      vulnerabilityCard(inputs.VULNERABILITIES, assessment.findings)]);
+    var section = element("section", "bq-section");
+    return append(section, [element("h3", "bq-heading", "Build evidence"), cards, reportAges(inputs)]);
+  }
+
+  function testingCard(inputs, metrics) {
+    var facts = element("dl", "bq-facts-list");
+    if (inputs.COVERAGE && inputs.COVERAGE.status === "READ") {
+      fact(facts, "Line coverage", metrics.lineCoverage + "%");
+      if (metrics.branchCoverage !== undefined) {
+        fact(facts, "Branch coverage", metrics.branchCoverage + "%");
+      }
+    }
+    if (inputs.TEST_RESULTS && inputs.TEST_RESULTS.status === "READ") {
+      fact(facts, "Tests", metrics.testsPassed + " passed, " + metrics.testsFailed + " failed, "
+        + metrics.testsSkipped + " skipped");
+    }
+    return card("Tests and coverage", [facts.firstChild ? facts : null,
+      hint(inputs.COVERAGE), hint(inputs.TEST_RESULTS)]);
+  }
+
+  function vulnerabilityCard(input, findingList) {
+    if (!input || input.status !== "READ") {
+      return card("Known vulnerabilities", [hint(input)]);
+    }
+    var counts = element("ul", "bq-band-counts");
+    var total = 0;
+    VULNERABILITY_BANDS.forEach(function (band) {
+      var count = findingList.filter(function (finding) { return finding.ruleId === band.ruleId; }).length;
+      total += count;
+      var item = element("li", "");
+      append(item, [element("span", "bq-chip " + band.chip, band.label), element("span", "", count)]);
+      counts.appendChild(item);
+    });
+    var summary = element("p", "bq-card-value",
+      total === 0 ? "None found" : total + (total === 1 ? " advisory" : " advisories"));
+    return card("Known vulnerabilities", [summary, counts]);
+  }
+
+  function card(title, children) {
+    var node = element("div", "bq-card");
+    return append(node, [element("p", "bq-card-title", title)].concat(children));
+  }
+
+  function fact(list, term, value) {
+    append(list, [element("dt", "", term), element("dd", "", value)]);
+  }
+
+  function hint(input) {
+    return input && input.status !== "READ" && input.hint ? element("p", "bq-note", input.hint) : null;
+  }
+
+  function reportAges(inputs) {
+    var read = REPORT_INPUTS.map(function (type) { return inputs[type]; })
+      .filter(function (input) { return input && input.file && input.modifiedAt; });
+    if (read.length === 0) {
+      return null;
+    }
+    var text = read.map(function (input) { return input.file + " written " + age(input.modifiedAt); }).join(" · ");
+    return element("p", "bq-muted bq-report-ages", "Reports: " + text + ". Rebuild to refresh them.");
+  }
+
+  function age(timestamp) {
+    var minutes = Math.floor((Date.now() - Date.parse(timestamp)) / 60000);
+    if (isNaN(minutes) || minutes < 1) {
+      return "just now";
+    }
+    if (minutes < 60) {
+      return plural(minutes, "minute") + " ago";
+    }
+    var hours = Math.floor(minutes / 60);
+    return hours < 48 ? plural(hours, "hour") + " ago" : plural(Math.floor(hours / 24), "day") + " ago";
   }
 
   function categories(list) {
@@ -221,7 +317,7 @@
   // Turns "/paths/~1orders~1{id}/get/responses/404" into "GET /orders/{id} · responses 404".
   function describe(evidence) {
     if (evidence.source !== "OPENAPI") {
-      return evidence.source;
+      return EVIDENCE_SOURCES[evidence.source] || evidence.source;
     }
     var tokens = evidence.location.split("/").slice(1).map(function (token) {
       return token.replace(/~1/g, "/").replace(/~0/g, "~");

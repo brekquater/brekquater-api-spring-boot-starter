@@ -9,5 +9,11 @@ package com.brekquater.api.rules;
  */
 public enum RuleInput {
     /** The application's OpenAPI document. */
-    OPENAPI
+    OPENAPI,
+    /** A JaCoCo XML coverage report from the application's build. */
+    COVERAGE,
+    /** Surefire or Failsafe XML test reports from the application's build. */
+    TEST_RESULTS,
+    /** An OSV-Scanner or OWASP Dependency-Check report on the application's dependencies. */
+    VULNERABILITIES
 }

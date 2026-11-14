@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd">
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  Copyright Brekquater
+  Made-up sample report for the demo; see ../README.md.
+-->
+<report name="Brekquater API Demo">
+  <package name="com/brekquater/api/demo">
+    <class name="com/brekquater/api/demo/good/OrdersController" sourcefilename="good/OrdersController.java"><counter type="LINE" missed="2" covered="38"/></class>
+    <class name="com/brekquater/api/demo/good/ApiErrors" sourcefilename="good/ApiErrors.java"><counter type="LINE" missed="1" covered="19"/></class>
+  </package>
+  <counter type="BRANCH" missed="1" covered="9"/>
+  <counter type="LINE" missed="3" covered="57"/>
+</report>

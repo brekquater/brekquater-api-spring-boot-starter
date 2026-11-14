@@ -25,6 +25,8 @@ replay_pid*
 
 # Maven
 target/
+# Left behind by "./mvnw versions:set" when backups are not turned off
+*.versionsBackup
 
 # IDEs
 .idea/
@@ -38,6 +40,13 @@ target/
 .factorypath
 bin/
 out/
+
+# Documentation site output, and a Python environment for previewing it (see CONTRIBUTING.md)
+/site/
+/_site/
+.venv/
+venv/
+__pycache__/
 
 # Operating systems
 .DS_Store
@@ -54,6 +63,7 @@ Thumbs.db
 .env
 .env.*
 *.gpg
+*.asc
 *.pem
 *.key
 *.p12
@@ -63,3 +73,4 @@ Thumbs.db
 /CLAUDE.md
 /docs/PRD.md
 /docs/DESIGN.md
+/RELEASE-GUIDE.md

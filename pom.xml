@@ -3,9 +3,11 @@
   SPDX-License-Identifier: Apache-2.0
   Copyright Brekquater
 -->
+<!-- Every module shares the project's site and repository addresses, rather than one with its artifactId appended. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         child.project.url.inherit.append.path="false">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.brekquater</groupId>
@@ -46,7 +48,9 @@
     <module>brekquater-api-demo</module>
   </modules>
 
-  <scm>
+  <scm child.scm.connection.inherit.append.path="false"
+       child.scm.developerConnection.inherit.append.path="false"
+       child.scm.url.inherit.append.path="false">
     <connection>scm:git:https://github.com/brekquater/brekquater-api-spring-boot-starter.git</connection>
     <developerConnection>scm:git:git@github.com:brekquater/brekquater-api-spring-boot-starter.git</developerConnection>
     <url>https://github.com/brekquater/brekquater-api-spring-boot-starter</url>
@@ -72,6 +76,8 @@
     <jacoco.version>0.8.16</jacoco.version>
     <pitest.version>1.30.2</pitest.version>
     <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
 
     <!-- Plugin versions follow the ones Spring Boot ${spring-boot.version} manages. -->
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
@@ -81,6 +87,14 @@
     <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
     <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
     <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+    <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+    <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
+
+    <!-- A module sets this to true to stay out of the Central bundle. -->
+    <central.skipPublishing>false</central.skipPublishing>
+    <!-- The release workflow is a dry run until the maintainer steps in docs/MAINTAINERS.md are done. -->
+    <central.skipUpload>true</central.skipUpload>
   </properties>
 
   <dependencyManagement>
@@ -235,4 +249,87 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <profiles>
+    <!-- Everything Maven Central requires: sources, Javadoc and signatures, plus an SBOM. Used by the release workflow. -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+              <!-- Package-private classes need no Javadoc; everything public is still checked. -->
+              <doclint>all,-missing</doclint>
+              <quiet>true</quiet>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.cyclonedx</groupId>
+            <artifactId>cyclonedx-maven-plugin</artifactId>
+            <version>${cyclonedx-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>makeBom</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${central-publishing-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <!-- A maintainer checks the validated deployment on the Central Portal and publishes it by hand. -->
+              <autoPublish>false</autoPublish>
+              <skipPublishing>${central.skipPublishing}</skipPublishing>
+              <skipUpload>${central.skipUpload}</skipUpload>
+              <deploymentName>Brekquater API ${project.version}</deploymentName>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

@@ -22,10 +22,11 @@ class EngineAssessmentServiceTest {
 
     private static final Instant NOW = Instant.parse("2026-11-13T10:00:00Z");
 
-    private final EngineAssessmentService service = new EngineAssessmentService(
+    private final EngineAssessmentService service = new EngineAssessmentService(new EngineAssessmentService.Collaborators(
+            AssessmentInputs.DOCUMENT_ONLY,
             new RuleEngine(RuleRegistry.fromServiceLoader()),
             ScoreCalculator.riskWeighted(ScoringPolicy.defaults()),
-            Clock.fixed(NOW, ZoneOffset.UTC));
+            Clock.fixed(NOW, ZoneOffset.UTC)));
 
     @Test
     void assessesAnOpenApi31DocumentAsSpringdocWritesIt() {

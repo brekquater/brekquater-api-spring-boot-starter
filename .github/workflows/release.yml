@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright Brekquater
+
+# Builds a release. Started by hand only, from the Actions tab:
+#
+# - By default it is a dry run: it builds everything Maven Central needs (jars, sources, Javadoc, SBOMs), signs and
+#   uploads nothing, and keeps the result as a workflow artifact for inspection.
+# - With "publish" ticked, on a v* tag whose version matches the POM, it signs the artifacts and uploads them to the
+#   Central Publisher Portal. It runs in the protected "release" environment, so a reviewer must approve it, and it
+#   stops at "validated": a maintainer still presses Publish on the portal.
+#
+# The secrets and settings it needs are described in docs/MAINTAINERS.md.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Sign and upload to the Central Publisher Portal (run on a v* tag)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  dry-run:
+    name: Build the release without publishing
+    if: ${{ !inputs.publish }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+      - run: ./mvnw --batch-mode --no-transfer-progress -Prelease -Dgpg.skip=true -Dcentral.skipUpload=true deploy
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: central-bundle-dry-run
+          path: |
+            target/central-deferred/
+            target/central-publishing/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Sign and upload to the Central Publisher Portal
+    if: ${{ inputs.publish && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # No cache here: a release is built from a clean repository, so nothing from earlier builds can slip in.
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: 17
+          server-id: central
+          server-username-env-var: CENTRAL_USERNAME
+          server-password-env-var: CENTRAL_PASSWORD
+      - name: Check that the tag matches the version in the POM
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="$(./mvnw --batch-mode --quiet org.apache.maven.plugins:maven-help-plugin:3.5.2:evaluate -Dexpression=project.version -DforceStdout)"
+          if [ "v${version}" != "${TAG}" ] || [[ "${version}" == *-SNAPSHOT ]]; then
+            echo "::error::Tag ${TAG} does not match the release version ${version} in pom.xml."
+            exit 1
+          fi
+      # The Bouncy Castle signer reads the key from MAVEN_GPG_KEY, so no gpg binary or keyring is involved.
+      - run: ./mvnw --batch-mode --no-transfer-progress -Prelease -Dgpg.signer=bc -Dcentral.skipUpload=false deploy
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

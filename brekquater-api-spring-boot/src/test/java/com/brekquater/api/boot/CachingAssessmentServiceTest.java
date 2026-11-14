@@ -6,6 +6,7 @@ package com.brekquater.api.boot;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.brekquater.api.rules.AssessmentResult;
+import com.brekquater.api.rules.BuildReports;
 import com.brekquater.api.rules.report.Assessment;
 import com.brekquater.api.rules.scoring.Score;
 import java.time.Instant;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 class CachingAssessmentServiceTest {
@@ -21,10 +23,13 @@ class CachingAssessmentServiceTest {
     private static final Optional<OpenApiDocument> CHANGED = Optional.of(OpenApiDocument.of("{\"openapi\":\"3.0.3\"}"));
 
     private final AtomicInteger assessments = new AtomicInteger();
-    private final CachingAssessmentService service = new CachingAssessmentService(document -> {
-        assessments.incrementAndGet();
-        return assessment();
-    });
+    private final AtomicReference<String> reportsFingerprint = new AtomicReference<>("jacoco.xml:100");
+    private final CachingAssessmentService service = new CachingAssessmentService(
+            document -> {
+                assessments.incrementAndGet();
+                return assessment();
+            },
+            document -> document.map(OpenApiDocument::fingerprint).orElse("") + reportsFingerprint.get());
 
     @Test
     void assessesAnUnchangedDocumentOnlyOnce() {
@@ -60,9 +65,19 @@ class CachingAssessmentServiceTest {
         assertThat(assessments).hasValue(2);
     }
 
+    @Test
+    void assessesAgainWhenABuildReportChanges() {
+        service.assess(ORDERS);
+        reportsFingerprint.set("jacoco.xml:200");
+        service.assess(ORDERS);
+
+        assertThat(assessments).hasValue(2);
+    }
+
     private static Assessment assessment() {
         AssessmentResult result =
-                new AssessmentResult("test", Optional.empty(), List.of(), List.of(), List.of(), List.of());
+                new AssessmentResult(
+                        "test", Optional.empty(), BuildReports.none(), List.of(), List.of(), List.of(), List.of());
         return new Assessment(result, new Score(OptionalInt.empty(), Optional.empty(), List.of()), Instant.EPOCH);
     }
 }

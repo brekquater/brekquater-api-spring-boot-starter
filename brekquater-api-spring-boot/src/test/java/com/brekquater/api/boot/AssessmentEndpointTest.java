@@ -31,10 +31,11 @@ class AssessmentEndpointTest {
              "paths": {"/orders": {"get": {"responses": {"200": {"description": "OK"}}}}}}
             """;
 
-    private final AssessmentService engine = new EngineAssessmentService(
+    private final AssessmentService engine = new EngineAssessmentService(new EngineAssessmentService.Collaborators(
+            AssessmentInputs.DOCUMENT_ONLY,
             new RuleEngine(RuleRegistry.fromServiceLoader()),
             ScoreCalculator.riskWeighted(ScoringPolicy.defaults()),
-            Clock.fixed(Instant.parse("2026-11-13T10:00:00Z"), ZoneOffset.UTC));
+            Clock.fixed(Instant.parse("2026-11-13T10:00:00Z"), ZoneOffset.UTC)));
 
     @Test
     void servesTheAssessmentOfTheDocumentAsJson() throws Exception {

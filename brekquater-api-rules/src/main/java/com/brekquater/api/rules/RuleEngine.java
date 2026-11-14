@@ -24,6 +24,7 @@ public final class RuleEngine {
     public AssessmentResult assess(AssessmentContext context) {
         AssessmentResult.Builder result = AssessmentResult.builder(ruleSetVersion());
         context.openApi().map(OpenApiContext::document).ifPresent(result::document);
+        result.reports(context.reports());
         RuleRun run = new RuleRun(context, result);
         registry.rules().forEach(run::evaluate);
         return result.build();

@@ -1,9 +1,15 @@
 com.brekquater.api.rules.catalogue.ApiDeclaresContact
 com.brekquater.api.rules.catalogue.ApiHasDescription
 com.brekquater.api.rules.catalogue.ApiInfoIsNotPlaceholder
+com.brekquater.api.rules.catalogue.BranchCoverageMeetsTarget
 com.brekquater.api.rules.catalogue.CollectionGetIsPaginated
 com.brekquater.api.rules.catalogue.ErrorResponseUsesProblemDetails
 com.brekquater.api.rules.catalogue.GetHasNoRequestBody
+com.brekquater.api.rules.catalogue.LineCoverageMeetsTarget
+com.brekquater.api.rules.catalogue.NoCriticalVulnerability
+com.brekquater.api.rules.catalogue.NoHighVulnerability
+com.brekquater.api.rules.catalogue.NoLowVulnerability
+com.brekquater.api.rules.catalogue.NoMediumVulnerability
 com.brekquater.api.rules.catalogue.OperationDeclaresSecurity
 com.brekquater.api.rules.catalogue.OperationDocumentsErrorResponse
 com.brekquater.api.rules.catalogue.OperationHasOperationId
@@ -16,3 +22,4 @@ com.brekquater.api.rules.catalogue.PathSegmentsAreKebabCase
 com.brekquater.api.rules.catalogue.ResponseContentHasSchema
 com.brekquater.api.rules.catalogue.ResponseSchemaIsNotFreeForm
 com.brekquater.api.rules.catalogue.SecurityRequirementNamesDefinedScheme
+com.brekquater.api.rules.catalogue.TestsPass

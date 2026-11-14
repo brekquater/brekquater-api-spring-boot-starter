@@ -221,6 +221,26 @@ class BrekquaterApiAutoConfigurationTest {
                         .contains("brekquater.api.panel.base-path")));
     }
 
+    @Test
+    void checksNothingAtStartupUnlessStrictModeIsOn() {
+        runner.run(context -> assertThat(context).doesNotHaveBean(StrictModeCheck.class));
+    }
+
+    @Test
+    void registersTheStartupCheckInStrictMode() {
+        runner.withPropertyValues("brekquater.api.strict=true")
+                .run(context -> assertThat(context).hasSingleBean(StrictModeCheck.class));
+    }
+
+    @Test
+    void aCoverageThresholdAbove100FailsWithAnExplanation() {
+        runner.withPropertyValues("brekquater.api.thresholds.line-coverage=120")
+                .run(context -> assertThat(analysisOf(context)).hasValueSatisfying(analysis -> {
+                    assertThat(analysis.getDescription()).contains("brekquater.api.thresholds.line-coverage", "'120'");
+                    assertThat(analysis.getAction()).contains("0 to 100");
+                }));
+    }
+
     private static Optional<FailureAnalysis> analysisOf(AssertableWebApplicationContext context) {
         assertThat(context).hasFailed();
         return Optional.ofNullable(new BrekquaterConfigurationFailureAnalyzer().analyze(context.getStartupFailure()));

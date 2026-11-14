@@ -3,8 +3,10 @@
 
 package com.brekquater.api.boot;
 
+import com.brekquater.api.rules.CoverageTargets;
 import com.brekquater.api.rules.Severity;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,13 +20,20 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param panel Where and to whom the assessment is shown.
  * @param rules Which rules run and how serious they are.
  * @param score How findings turn into the maturity score.
+ * @param reports Where the build reports are. Each one that is not set is looked for where Maven writes it.
+ * @param thresholds The coverage the coverage rules expect.
+ * @param strict Whether blocker findings stop the application at startup. Off by default: the starter warns, it
+ *     does not block.
  */
 @ConfigurationProperties("brekquater.api")
 record BrekquaterApiProperties(
         @DefaultValue("true") boolean enabled,
         @DefaultValue Panel panel,
         @DefaultValue Rules rules,
-        @DefaultValue Score score) {
+        @DefaultValue Score score,
+        @DefaultValue Reports reports,
+        @DefaultValue Thresholds thresholds,
+        @DefaultValue("false") boolean strict) {
 
     /**
      * Where and to whom the assessment is shown.
@@ -124,6 +133,53 @@ record BrekquaterApiProperties(
                         PROPERTY,
                         "a=" + a + ", b=" + b + ", c=" + c + ", d=" + d,
                         "Use minimums between 0 and 100 with a >= b >= c >= d, for example the defaults 90, 75, 60, 40.");
+            }
+        }
+    }
+
+    /**
+     * Where the build reports are. Paths are relative to the working directory unless absolute. A report that is
+     * not found is never an error; the rules that need it are skipped.
+     *
+     * @param coverage JaCoCo XML report. Defaults to target/site/jacoco/jacoco.xml.
+     * @param testResults Surefire or Failsafe XML reports: files, or directories whose TEST-*.xml files are read.
+     *     Defaults to target/surefire-reports and target/failsafe-reports.
+     * @param vulnerabilities OSV-Scanner or OWASP Dependency-Check JSON report; the format is recognised from the
+     *     content. Defaults to target/osv-scanner.json, then target/dependency-check-report.json.
+     */
+    record Reports(String coverage, List<String> testResults, String vulnerabilities) {
+
+        Reports {
+            coverage = coverage == null ? "" : coverage;
+            testResults = testResults == null ? List.of() : List.copyOf(testResults);
+            vulnerabilities = vulnerabilities == null ? "" : vulnerabilities;
+        }
+    }
+
+    /**
+     * The coverage, in whole percent, that the coverage rules expect.
+     *
+     * @param lineCoverage Lowest acceptable line coverage, checked by BQ-TST-001.
+     * @param branchCoverage Lowest acceptable branch coverage, checked by BQ-TST-002.
+     */
+    record Thresholds(@DefaultValue("80") int lineCoverage, @DefaultValue("70") int branchCoverage) {
+
+        private static final String PROPERTY_PREFIX = "brekquater.api.thresholds.";
+        private static final int MAXIMUM = 100;
+
+        Thresholds {
+            requirePercent("line-coverage", lineCoverage);
+            requirePercent("branch-coverage", branchCoverage);
+        }
+
+        CoverageTargets coverageTargets() {
+            return new CoverageTargets(lineCoverage, branchCoverage);
+        }
+
+        private static void requirePercent(String name, int value) {
+            if (value < 0 || value > MAXIMUM) {
+                throw new InvalidBrekquaterConfigurationException(
+                        PROPERTY_PREFIX + name, value, "Use a whole percentage from 0 to 100.");
             }
         }
     }

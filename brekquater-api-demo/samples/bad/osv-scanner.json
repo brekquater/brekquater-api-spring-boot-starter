@@ -1,0 +1,167 @@
+{
+  "results": [
+    {
+      "source": {
+        "path": "pom.xml",
+        "type": "lockfile"
+      },
+      "packages": [
+        {
+          "package": {
+            "name": "com.example.legacy:xml-parser",
+            "version": "1.0.0",
+            "ecosystem": "Maven",
+            "purl": "pkg:maven/com.example.legacy/xml-parser@1.0.0"
+          },
+          "groups": [
+            {
+              "ids": [
+                "GHSA-demo-0001-crit"
+              ],
+              "aliases": [
+                "CVE-2099-10001",
+                "GHSA-demo-0001-crit"
+              ],
+              "max_severity": "9.8"
+            },
+            {
+              "ids": [
+                "GHSA-demo-0002-high"
+              ],
+              "aliases": [
+                "CVE-2099-10002",
+                "GHSA-demo-0002-high"
+              ],
+              "max_severity": "7.5"
+            }
+          ],
+          "vulnerabilities": [
+            {
+              "id": "GHSA-demo-0001-crit",
+              "aliases": [
+                "CVE-2099-10001"
+              ],
+              "summary": "Made-up demo advisory: external entities are resolved",
+              "affected": [
+                {
+                  "package": {
+                    "ecosystem": "Maven",
+                    "name": "com.example.legacy:xml-parser"
+                  },
+                  "ranges": [
+                    {
+                      "type": "ECOSYSTEM",
+                      "events": [
+                        {
+                          "introduced": "0"
+                        },
+                        {
+                          "fixed": "1.4.2"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "GHSA-demo-0002-high",
+              "aliases": [
+                "CVE-2099-10002"
+              ],
+              "summary": "Made-up demo advisory: deeply nested input exhausts the stack",
+              "affected": [
+                {
+                  "package": {
+                    "ecosystem": "Maven",
+                    "name": "com.example.legacy:xml-parser"
+                  },
+                  "ranges": [
+                    {
+                      "type": "ECOSYSTEM",
+                      "events": [
+                        {
+                          "introduced": "0"
+                        },
+                        {
+                          "fixed": "1.4.2"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "package": {
+            "name": "com.example.legacy:date-utils",
+            "version": "2.3",
+            "ecosystem": "Maven",
+            "purl": "pkg:maven/com.example.legacy/date-utils@2.3"
+          },
+          "groups": [
+            {
+              "ids": [
+                "GHSA-demo-0003-med"
+              ],
+              "aliases": [
+                "CVE-2099-10003",
+                "GHSA-demo-0003-med"
+              ],
+              "max_severity": "5.3"
+            },
+            {
+              "ids": [
+                "GHSA-demo-0004-low"
+              ],
+              "aliases": [
+                "CVE-2099-10004",
+                "GHSA-demo-0004-low"
+              ],
+              "max_severity": "3.1"
+            }
+          ],
+          "vulnerabilities": [
+            {
+              "id": "GHSA-demo-0003-med",
+              "aliases": [
+                "CVE-2099-10003"
+              ],
+              "summary": "Made-up demo advisory: slow parsing of long dates"
+            },
+            {
+              "id": "GHSA-demo-0004-low",
+              "aliases": [
+                "CVE-2099-10004"
+              ],
+              "summary": "Made-up demo advisory: time zone names leak into errors",
+              "affected": [
+                {
+                  "package": {
+                    "ecosystem": "Maven",
+                    "name": "com.example.legacy:date-utils"
+                  },
+                  "ranges": [
+                    {
+                      "type": "ECOSYSTEM",
+                      "events": [
+                        {
+                          "introduced": "0"
+                        },
+                        {
+                          "fixed": "2.4"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

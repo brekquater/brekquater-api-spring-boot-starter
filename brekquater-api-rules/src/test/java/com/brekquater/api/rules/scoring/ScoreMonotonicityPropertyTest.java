@@ -6,6 +6,7 @@ package com.brekquater.api.rules.scoring;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.brekquater.api.rules.AssessmentResult;
+import com.brekquater.api.rules.BuildReports;
 import com.brekquater.api.rules.Category;
 import com.brekquater.api.rules.RuleOutcome;
 import com.brekquater.api.rules.Severity;
@@ -60,7 +61,8 @@ class ScoreMonotonicityPropertyTest {
 
     private int overallOf(List<RuleOutcome> outcomes) {
         AssessmentResult result =
-                new AssessmentResult("test", Optional.empty(), List.of(), outcomes, List.of(), List.of());
+                new AssessmentResult(
+                        "test", Optional.empty(), BuildReports.none(), List.of(), outcomes, List.of(), List.of());
         return calculator.score(result).overall().orElse(0);
     }
 }

@@ -1,2 +1,3 @@
 org.springframework.boot.diagnostics.FailureAnalyzer=\
-com.brekquater.api.boot.BrekquaterConfigurationFailureAnalyzer
+com.brekquater.api.boot.BrekquaterConfigurationFailureAnalyzer,\
+com.brekquater.api.boot.StrictModeFailureAnalyzer

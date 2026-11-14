@@ -6,7 +6,11 @@ package com.brekquater.api.rules.scoring;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.brekquater.api.rules.AssessmentResult;
+import com.brekquater.api.rules.BuildReports;
 import com.brekquater.api.rules.Category;
+import com.brekquater.api.rules.Evidence;
+import com.brekquater.api.rules.Finding;
+import com.brekquater.api.rules.RuleInput;
 import com.brekquater.api.rules.RuleOutcome;
 import com.brekquater.api.rules.Severity;
 import java.math.BigDecimal;
@@ -84,6 +88,20 @@ class RiskWeightedScoreCalculatorTest {
     }
 
     @Test
+    void aBlockerFindingCapsTheGradeAtFButKeepsTheScore() {
+        RuleOutcome nineOfTen = outcome(Severity.BLOCKER, Category.SECURITY, 9);
+        Finding blocker = new Finding("BQ-TST-901", Severity.BLOCKER, Category.SECURITY, "Unprotected.",
+                new Evidence(RuleInput.OPENAPI, "/paths/~1orders/get"), "Protect it.", "https://x");
+        AssessmentResult result = new AssessmentResult("test", Optional.empty(), BuildReports.none(),
+                List.of(blocker), List.of(nineOfTen), List.of(), List.of());
+
+        Score score = calculator.score(result);
+
+        assertThat(score.overall()).hasValue(90);
+        assertThat(score.grade()).contains(Grade.F);
+    }
+
+    @Test
     void weighsABlockerRuleMoreThanAMinorRule() {
         Score score = calculator.score(resultOf(
                 outcome(Severity.BLOCKER, Category.SECURITY, 0), outcome(Severity.MINOR, Category.SECURITY, OPERATIONS)));
@@ -131,6 +149,7 @@ class RiskWeightedScoreCalculatorTest {
     }
 
     private static AssessmentResult resultOf(RuleOutcome... outcomes) {
-        return new AssessmentResult("test", Optional.empty(), List.of(), List.of(outcomes), List.of(), List.of());
+        return new AssessmentResult(
+                "test", Optional.empty(), BuildReports.none(), List.of(), List.of(outcomes), List.of(), List.of());
     }
 }

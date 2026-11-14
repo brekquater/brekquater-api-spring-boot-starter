@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  Copyright Brekquater
+  Made-up sample report for the demo; see ../README.md.
+-->
+<testsuite name="com.brekquater.api.demo.OrdersTest" tests="3" failures="0" errors="0" skipped="0">
+  <testcase name="listsOrders" classname="com.brekquater.api.demo.OrdersTest" time="0.1"></testcase>
+  <testcase name="findsAnOrder" classname="com.brekquater.api.demo.OrdersTest" time="0.1"></testcase>
+  <testcase name="returnsNotFoundForAnUnknownOrder" classname="com.brekquater.api.demo.OrdersTest" time="0.1"></testcase>
+</testsuite>
