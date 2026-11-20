@@ -70,8 +70,8 @@
     <spring-boot.version>4.1.2</spring-boot.version>
     <springdoc.version>3.2.0</springdoc.version>
     <!-- Must equal the swagger-core version that springdoc ${springdoc.version} brings. -->
-    <swagger.version>2.2.56</swagger.version>
-    <!-- Patch releases newer than Spring Boot ${spring-boot.version} manages; see the BOM imports below. -->
+    <swagger.version>2.2.55</swagger.version>
+    <!-- Newer than the Jackson versions Spring Boot ${spring-boot.version} manages; see the BOM imports below. -->
     <jackson.version>3.3.0</jackson.version>
     <jackson-2.version>2.23.0</jackson-2.version>
     <archunit.version>1.5.1</archunit.version>
@@ -82,7 +82,10 @@
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
 
-    <!-- Plugin versions follow the ones Spring Boot ${spring-boot.version} manages. -->
+    <!--
+      Plugin versions start from the ones Spring Boot ${spring-boot.version} manages, and Dependabot keeps them current,
+      so some are newer. CI builds every update on Java 17, 21 and 25 before it is merged.
+    -->
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
     <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
