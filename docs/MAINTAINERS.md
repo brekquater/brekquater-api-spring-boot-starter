@@ -40,7 +40,7 @@ Create a GitHub environment named `release` with required reviewers, and add the
 
 1. Point `starter.brekquater.com` at GitHub Pages with a DNS `CNAME` record to `brekquater.github.io`.
 2. In the repository's Pages settings, choose **GitHub Actions** as the source and set the custom domain to `starter.brekquater.com`, with HTTPS enforced.
-3. Set the repository variable `DOCS_DEPLOY` to `true`. The `Docs` workflow then publishes on every push to `master`. Until then it only builds the site, so broken links still fail pull requests.
+3. Set the repository variable `DOCS_DEPLOY` to `true`. The `Docs` workflow then publishes on every push to `master`, and when you run it by hand on `master`. Until then it only builds the site, so broken links still fail pull requests.
 
 The site is published under `/api/`, because every finding links to `https://starter.brekquater.com/api/rules/<RULE-ID>`. Those addresses must keep working for every released version. If another Brekquater starter later shares the domain, move the root redirect (`docs/root-index.html`) to a repository of its own.
 
