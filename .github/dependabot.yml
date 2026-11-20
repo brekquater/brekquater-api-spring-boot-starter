@@ -9,6 +9,9 @@ updates:
       interval: weekly
     commit-message:
       prefix: build
+    ignore:
+      # swagger.version must equal the swagger-core that springdoc brings; bump it by hand with springdoc.
+      - dependency-name: "io.swagger.core.v3:*"
   - package-ecosystem: github-actions
     directory: /
     schedule:
