@@ -73,7 +73,7 @@
     <swagger.version>2.2.55</swagger.version>
     <!-- Patch releases newer than Spring Boot ${spring-boot.version} manages; see the BOM imports below. -->
     <jackson.version>3.3.0</jackson.version>
-    <jackson-2.version>2.21.8</jackson-2.version>
+    <jackson-2.version>2.23.0</jackson-2.version>
     <archunit.version>1.5.1</archunit.version>
     <jqwik.version>1.10.2</jqwik.version>
     <jacoco.version>0.8.16</jacoco.version>
