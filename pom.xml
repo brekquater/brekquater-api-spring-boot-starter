@@ -99,7 +99,7 @@
 
     <!-- A module sets this to true to stay out of the Central bundle. -->
     <central.skipPublishing>false</central.skipPublishing>
-    <!-- The release workflow is a dry run until the maintainer steps in docs/MAINTAINERS.md are done. -->
+    <!-- Nothing is uploaded unless the release workflow turns this off for a tagged release. -->
     <central.skipUpload>true</central.skipUpload>
   </properties>
 

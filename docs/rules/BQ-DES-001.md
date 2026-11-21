@@ -1,10 +1,14 @@
-# BQ-DES-001: Collection GET is paginated
+---
+title: "BQ-DES-001: Collection GET is paginated"
+description: "A GET that returns a list documents at least one paging query parameter: page, size, limit, offset, cursor, after, before, pageable, page-token or a variant such as page_size or pageSize."
+slug: /rules/BQ-DES-001
+rule_id: BQ-DES-001
+severity: MINOR
+category: DESIGN
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | DESIGN |
-| **Checks** | A `GET` that returns a list documents at least one paging query parameter: `page`, `size`, `limit`, `offset`, `cursor`, `after`, `before`, `pageable`, `page-token` or a variant such as `page_size` or `pageSize`. |
+**Checks:** A `GET` that returns a list documents at least one paging query parameter: `page`, `size`, `limit`, `offset`, `cursor`, `after`, `before`, `pageable`, `page-token` or a variant such as `page_size` or `pageSize`.
 
 ## Why it matters when you scale
 

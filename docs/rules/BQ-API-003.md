@@ -1,10 +1,14 @@
-# BQ-API-003: Response content has a schema
+---
+title: "BQ-API-003: Response content has a schema"
+description: "Every media type of every documented response declares a schema."
+slug: /rules/BQ-API-003
+rule_id: BQ-API-003
+severity: MAJOR
+category: DESIGN
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MAJOR |
-| **Category** | DESIGN |
-| **Checks** | Every media type of every documented response declares a `schema`. |
+**Checks:** Every media type of every documented response declares a `schema`.
 
 ## Why it matters when you scale
 

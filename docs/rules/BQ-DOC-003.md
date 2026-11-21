@@ -1,10 +1,14 @@
-# BQ-DOC-003: API has a description
+---
+title: "BQ-DOC-003: API has a description"
+description: "info.description is present and not blank."
+slug: /rules/BQ-DOC-003
+rule_id: BQ-DOC-003
+severity: MINOR
+category: DOCUMENTATION
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | DOCUMENTATION |
-| **Checks** | `info.description` is present and not blank. |
+**Checks:** `info.description` is present and not blank.
 
 ## Why it matters when you scale
 

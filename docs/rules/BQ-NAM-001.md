@@ -1,10 +1,14 @@
-# BQ-NAM-001: Path segments are kebab-case
+---
+title: "BQ-NAM-001: Path segments are kebab-case"
+description: "Every fixed segment of every path is lowercase letters and digits, with single hyphens between words. Segments that contain a path parameter, such as {orderId}, are not checked."
+slug: /rules/BQ-NAM-001
+rule_id: BQ-NAM-001
+severity: MINOR
+category: NAMING
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | NAMING |
-| **Checks** | Every fixed segment of every path is lowercase letters and digits, with single hyphens between words. Segments that contain a path parameter, such as `{orderId}`, are not checked. |
+**Checks:** Every fixed segment of every path is lowercase letters and digits, with single hyphens between words. Segments that contain a path parameter, such as `{orderId}`, are not checked.
 
 ## Why it matters when you scale
 

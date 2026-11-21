@@ -1,10 +1,14 @@
-# BQ-DOC-001: Operation has a summary or description
+---
+title: "BQ-DOC-001: Operation has a summary or description"
+description: "Every operation has a non-empty summary or description. Text that is only whitespace counts as missing."
+slug: /rules/BQ-DOC-001
+rule_id: BQ-DOC-001
+severity: MINOR
+category: DOCUMENTATION
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | DOCUMENTATION |
-| **Checks** | Every operation has a non-empty `summary` or `description`. Text that is only whitespace counts as missing. |
+**Checks:** Every operation has a non-empty `summary` or `description`. Text that is only whitespace counts as missing.
 
 ## Why it matters when you scale
 

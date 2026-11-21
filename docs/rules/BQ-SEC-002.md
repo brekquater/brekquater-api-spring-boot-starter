@@ -1,10 +1,14 @@
-# BQ-SEC-002: Security requirement names a defined scheme
+---
+title: "BQ-SEC-002: Security requirement names a defined scheme"
+description: "Every entry of every security list, at document or operation level, names only schemes that are defined under components.securitySchemes."
+slug: /rules/BQ-SEC-002
+rule_id: BQ-SEC-002
+severity: MAJOR
+category: SECURITY
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MAJOR |
-| **Category** | SECURITY |
-| **Checks** | Every entry of every `security` list, at document or operation level, names only schemes that are defined under `components.securitySchemes`. |
+**Checks:** Every entry of every `security` list, at document or operation level, names only schemes that are defined under `components.securitySchemes`.
 
 ## Why it matters when you scale
 

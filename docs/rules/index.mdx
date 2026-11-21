@@ -1,0 +1,19 @@
+---
+title: Rule catalogue
+slug: /rules/
+description: Every rule the Brekquater API starter checks, with its severity, category and what it reads.
+---
+
+import RuleCatalogue from '@site/src/components/RuleCatalogue';
+
+Every rule checks one thing and has a page that explains why it matters, shows a failing and a passing example, and says how to fix or suppress it. Rule IDs never change meaning: a rule that has to behave differently gets a new ID.
+
+**Severity** sets a rule's weight in the score: BLOCKER 10, MAJOR 7.5, MINOR 5, INFO 0 (listed, not scored). Only security rules can be BLOCKER, and any blocker finding caps the grade at F. Change weights and severities in [configuration](../configuration.md).
+
+**Reads** says what a rule needs. Rules that read a build report are skipped, never failed, when the report is missing; see [build reports](../reports.md).
+
+<RuleCatalogue />
+
+## Not assessed yet
+
+`CODE_QUALITY` and `ARCHITECTURE` are reported as "not assessed" in every assessment. They have no rules yet, and the score never counts them.
