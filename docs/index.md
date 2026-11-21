@@ -8,7 +8,8 @@ description: Add the Brekquater API starter to a Spring Boot 4.1 application and
 
 Add one dependency, run your Spring Boot application, open Swagger UI, and see what can be improved in your API design, plus a maturity score. It warns; it does not block, unless you turn on strict mode.
 
-![The Brekquater panel: a score with its grade, category scores, build evidence and findings grouped by severity](assets/panel.png)
+![The Brekquater dashboard: operations with their finding counts, the findings with filters, and a score card with category scores and build evidence](assets/panel-light.png#gh-light-mode-only)
+![The Brekquater dashboard: operations with their finding counts, the findings with filters, and a score card with category scores and build evidence](assets/panel-dark.png#gh-dark-mode-only)
 
 ## Quick start
 

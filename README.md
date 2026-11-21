@@ -7,7 +7,8 @@ Add one dependency, run your app, open Swagger UI, and see what can be improved 
 
 It warns; it does not block. (Unless you ask it to: see [strict mode](#strict-mode).)
 
-![The Brekquater panel: a score with its grade, category scores, build evidence and findings grouped by severity](docs/assets/panel.png)
+![The Brekquater dashboard: operations with their finding counts, the findings with filters, and a score card with category scores and build evidence](docs/assets/panel-light.png#gh-light-mode-only)
+![The Brekquater dashboard: operations with their finding counts, the findings with filters, and a score card with category scores and build evidence](docs/assets/panel-dark.png#gh-dark-mode-only)
 
 <!-- A short GIF of the Swagger UI flow (open the panel, expand a finding, follow the fix) will replace this screenshot. -->
 

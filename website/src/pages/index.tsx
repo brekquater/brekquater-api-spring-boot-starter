@@ -7,7 +7,8 @@ import Layout from '@theme/Layout';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import {usePluginData} from '@docusaurus/useGlobalData';
-import dashboardScreenshot from '../../../docs/assets/panel.png';
+import dashboardLight from '../../../docs/assets/panel-light.png';
+import dashboardDark from '../../../docs/assets/panel-dark.png';
 import {CATEGORY_NAMES, type Rule} from '@site/src/components/ruleLabels';
 
 const PROMISES = [
@@ -89,9 +90,9 @@ function Screenshot(): ReactNode {
       <h2 className="bq-section__title" id="see-it">
         Every finding, its fix, and a score
       </h2>
-      <img
+      <ThemedImage
         className="bq-shot"
-        src={dashboardScreenshot}
+        sources={{light: dashboardLight, dark: dashboardDark}}
         alt="The Brekquater dashboard: operations with their finding counts, the findings with filters, and a score card with category scores and build evidence"
         loading="lazy"
       />
