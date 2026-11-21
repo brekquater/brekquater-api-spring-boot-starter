@@ -90,7 +90,11 @@ final class SchemaIndex {
         if (!(candidate instanceof Schema<?> schema) || depth > MAX_DEPTH) {
             return;
         }
-        nodes.add(new ApiSchemaNode(pointer, Optional.ofNullable(schema.getPattern())));
+        nodes.add(new ApiSchemaNode(
+                pointer,
+                Optional.ofNullable(schema.getPattern()),
+                Optional.ofNullable(schema.get$ref()),
+                Boolean.TRUE.equals(schema.getWriteOnly())));
         if (schema.get$ref() == null) {
             walkChildren(schema, pointer, depth + 1);
         }
