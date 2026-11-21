@@ -12,6 +12,16 @@ updates:
     ignore:
       # swagger.version must equal the swagger-core that springdoc brings; bump it by hand with springdoc.
       - dependency-name: "io.swagger.core.v3:*"
+  - package-ecosystem: npm
+    directory: /website
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: docs
+    groups:
+      # Docusaurus packages must stay on one version, so they arrive in one pull request.
+      docusaurus:
+        patterns: ["@docusaurus/*"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

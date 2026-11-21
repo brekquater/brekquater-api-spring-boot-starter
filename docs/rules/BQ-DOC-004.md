@@ -1,10 +1,14 @@
-# BQ-DOC-004: API title and version are not placeholders
+---
+title: "BQ-DOC-004: API title and version are not placeholders"
+description: "info.title is present, not blank and not \"OpenAPI definition\", and info.version is present, not blank and not \"v0\"."
+slug: /rules/BQ-DOC-004
+rule_id: BQ-DOC-004
+severity: MINOR
+category: DOCUMENTATION
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | DOCUMENTATION |
-| **Checks** | `info.title` is present, not blank and not "OpenAPI definition", and `info.version` is present, not blank and not "v0". |
+**Checks:** `info.title` is present, not blank and not "OpenAPI definition", and `info.version` is present, not blank and not "v0".
 
 ## Why it matters when you scale
 

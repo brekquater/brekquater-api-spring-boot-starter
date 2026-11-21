@@ -1,10 +1,14 @@
-# BQ-API-005: Response schema is not a free-form object
+---
+title: "BQ-API-005: Response schema is not a free-form object"
+description: "A response schema describes its shape. It fails when the schema is an object, or has no type at all, and names no properties, no $ref, no allOf/anyOf/oneOf/not, and no typed additionalProperties. Arrays and scalar types pass."
+slug: /rules/BQ-API-005
+rule_id: BQ-API-005
+severity: MINOR
+category: DESIGN
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | DESIGN |
-| **Checks** | A response schema describes its shape. It fails when the schema is an `object`, or has no type at all, and names no properties, no `$ref`, no `allOf`/`anyOf`/`oneOf`/`not`, and no typed `additionalProperties`. Arrays and scalar types pass. |
+**Checks:** A response schema describes its shape. It fails when the schema is an `object`, or has no type at all, and names no properties, no `$ref`, no `allOf`/`anyOf`/`oneOf`/`not`, and no typed `additionalProperties`. Arrays and scalar types pass.
 
 ## Why it matters when you scale
 

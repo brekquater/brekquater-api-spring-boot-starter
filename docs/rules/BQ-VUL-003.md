@@ -1,11 +1,16 @@
-# BQ-VUL-003: No Medium known vulnerability in dependencies
+---
+title: "BQ-VUL-003: No Medium known vulnerability in dependencies"
+description: "The dependency vulnerability report lists no advisory in the Medium band (CVSS base score 4.0 to 6.9)."
+slug: /rules/BQ-VUL-003
+rule_id: BQ-VUL-003
+severity: MINOR
+category: SECURITY
+reads: VULNERABILITIES
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | SECURITY |
-| **Checks** | The dependency vulnerability report lists no advisory in the **Medium** band (CVSS base score 4.0 to 6.9). |
-| **Reads** | An OSV-Scanner or OWASP Dependency-Check JSON report from your build. See [reports](../reports.md). |
+**Checks:** The dependency vulnerability report lists no advisory in the **Medium** band (CVSS base score 4.0 to 6.9).
+
+**Reads:** An OSV-Scanner or OWASP Dependency-Check JSON report from your build. See [reports](../reports.md).
 
 ## Why it matters when you scale
 

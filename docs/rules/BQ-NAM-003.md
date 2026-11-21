@@ -1,10 +1,14 @@
-# BQ-NAM-003: Path has no CRUD verb
+---
+title: "BQ-NAM-003: Path has no CRUD verb"
+description: "No fixed path segment starts with one of these verbs: get, create, update, delete, add, remove, fetch, list, insert, save, retrieve, modify. Words are split at hyphens, underscores, dots and camelCase, so getOrders and delete-order fail while addresses and listings pass."
+slug: /rules/BQ-NAM-003
+rule_id: BQ-NAM-003
+severity: MINOR
+category: NAMING
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | NAMING |
-| **Checks** | No fixed path segment starts with one of these verbs: get, create, update, delete, add, remove, fetch, list, insert, save, retrieve, modify. Words are split at hyphens, underscores, dots and camelCase, so `getOrders` and `delete-order` fail while `addresses` and `listings` pass. |
+**Checks:** No fixed path segment starts with one of these verbs: get, create, update, delete, add, remove, fetch, list, insert, save, retrieve, modify. Words are split at hyphens, underscores, dots and camelCase, so `getOrders` and `delete-order` fail while `addresses` and `listings` pass.
 
 ## Why it matters when you scale
 

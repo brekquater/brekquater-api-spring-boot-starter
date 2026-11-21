@@ -1,10 +1,14 @@
-# BQ-SEC-001: Operation declares security
+---
+title: "BQ-SEC-001: Operation declares security"
+description: "Every operation has effective security, or is marked public on purpose with x-brekquater-public: true. An operation's own security replaces the document-wide security. A list that is empty, or that contains an empty entry ({}, meaning anonymous access is allowed), counts as no security."
+slug: /rules/BQ-SEC-001
+rule_id: BQ-SEC-001
+severity: BLOCKER
+category: SECURITY
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | BLOCKER |
-| **Category** | SECURITY |
-| **Checks** | Every operation has effective security, or is marked public on purpose with `x-brekquater-public: true`. An operation's own `security` replaces the document-wide `security`. A list that is empty, or that contains an empty entry (`{}`, meaning anonymous access is allowed), counts as no security. |
+**Checks:** Every operation has effective security, or is marked public on purpose with `x-brekquater-public: true`. An operation's own `security` replaces the document-wide `security`. A list that is empty, or that contains an empty entry (`{}`, meaning anonymous access is allowed), counts as no security.
 
 ## Why it matters when you scale
 

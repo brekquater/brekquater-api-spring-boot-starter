@@ -1,0 +1,10 @@
+{
+  "extends": "@docusaurus/tsconfig",
+  "compilerOptions": {
+    // Makes the @site/* path alias resolve from this folder, as in Docusaurus's own site template. TypeScript 6
+    // deprecates baseUrl; remove both lines once Docusaurus v4's tsconfig no longer needs it.
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0"
+  },
+  "exclude": [".docusaurus", "build"]
+}

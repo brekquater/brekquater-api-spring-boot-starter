@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright Brekquater
 
-# Builds the documentation site on every change, in strict mode so a broken link fails the build. Publishing to
-# GitHub Pages waits until a maintainer has enabled Pages and set the repository variable DOCS_DEPLOY to true;
-# see docs/MAINTAINERS.md.
+# Builds the documentation site (Docusaurus, in website/, from the Markdown in docs/) on every change. A broken link
+# or a missing rule page fails the build. Publishing to GitHub Pages happens only from master, and only when the
+# repository variable DOCS_DEPLOY is true, which a maintainer sets.
 name: Docs
 
 on:
   push:
     branches: [master]
-    paths: [docs/**, mkdocs.yml, .github/workflows/docs.yml]
+    paths: [docs/**, website/**, .github/workflows/docs.yml]
   pull_request:
-    paths: [docs/**, mkdocs.yml, .github/workflows/docs.yml]
+    paths: [docs/**, website/**, .github/workflows/docs.yml]
   workflow_dispatch:
 
 permissions:
@@ -25,17 +25,38 @@ jobs:
   build:
     name: Build the site
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          python-version: "3.13"
-      - run: pip install --require-hashes --no-deps -r docs/requirements.txt
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      # Every finding links to /api/rules/<RULE-ID>, and released jars keep those links forever.
+      - name: Check that every rule page exists at its address
+        run: |
+          missing=0
+          for page in ../docs/rules/BQ-*.md; do
+            id=$(basename "$page" .md)
+            if [ ! -f "build/rules/$id/index.html" ]; then
+              echo "::error file=docs/rules/$id.md::No page at /api/rules/$id/"
+              missing=1
+            fi
+          done
+          exit "$missing"
       # The site lives under /api/ on starter.brekquater.com, next to the redirect at the domain's root.
-      - run: mkdocs build --strict --site-dir _site/api
-      - run: cp docs/root-index.html _site/index.html
+      - run: |
+          mkdir -p ../_site
+          cp -r build ../_site/api
+          cp ../docs/root-index.html ../_site/index.html
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: _site

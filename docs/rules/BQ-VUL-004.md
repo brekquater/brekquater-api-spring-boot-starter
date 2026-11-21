@@ -1,11 +1,16 @@
-# BQ-VUL-004: No Low known vulnerability in dependencies
+---
+title: "BQ-VUL-004: No Low known vulnerability in dependencies"
+description: "The dependency vulnerability report lists no advisory in the Low band (CVSS base score 0.1 to 3.9)."
+slug: /rules/BQ-VUL-004
+rule_id: BQ-VUL-004
+severity: INFO
+category: SECURITY
+reads: VULNERABILITIES
+---
 
-| | |
-|---|---|
-| **Severity** | INFO |
-| **Category** | SECURITY |
-| **Checks** | The dependency vulnerability report lists no advisory in the **Low** band (CVSS base score 0.1 to 3.9). |
-| **Reads** | An OSV-Scanner or OWASP Dependency-Check JSON report from your build. See [reports](../reports.md). |
+**Checks:** The dependency vulnerability report lists no advisory in the **Low** band (CVSS base score 0.1 to 3.9).
+
+**Reads:** An OSV-Scanner or OWASP Dependency-Check JSON report from your build. See [reports](../reports.md).
 
 ## Why it matters when you scale
 

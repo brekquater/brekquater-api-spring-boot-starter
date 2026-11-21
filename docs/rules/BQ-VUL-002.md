@@ -1,11 +1,16 @@
-# BQ-VUL-002: No High known vulnerability in dependencies
+---
+title: "BQ-VUL-002: No High known vulnerability in dependencies"
+description: "The dependency vulnerability report lists no advisory in the High band (CVSS base score 7.0 to 8.9)."
+slug: /rules/BQ-VUL-002
+rule_id: BQ-VUL-002
+severity: MAJOR
+category: SECURITY
+reads: VULNERABILITIES
+---
 
-| | |
-|---|---|
-| **Severity** | MAJOR |
-| **Category** | SECURITY |
-| **Checks** | The dependency vulnerability report lists no advisory in the **High** band (CVSS base score 7.0 to 8.9). |
-| **Reads** | An OSV-Scanner or OWASP Dependency-Check JSON report from your build. See [reports](../reports.md). |
+**Checks:** The dependency vulnerability report lists no advisory in the **High** band (CVSS base score 7.0 to 8.9).
+
+**Reads:** An OSV-Scanner or OWASP Dependency-Check JSON report from your build. See [reports](../reports.md).
 
 ## Why it matters when you scale
 

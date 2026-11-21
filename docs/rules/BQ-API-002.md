@@ -1,10 +1,14 @@
-# BQ-API-002: operationId has no generated suffix
+---
+title: "BQ-API-002: operationId has no generated suffix"
+description: "No operationId ends in an underscore followed by digits, such as findAll_1. INFO findings are shown but never counted in the score."
+slug: /rules/BQ-API-002
+rule_id: BQ-API-002
+severity: INFO
+category: DESIGN
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | INFO |
-| **Category** | DESIGN |
-| **Checks** | No `operationId` ends in an underscore followed by digits, such as `findAll_1`. INFO findings are shown but never counted in the score. |
+**Checks:** No `operationId` ends in an underscore followed by digits, such as `findAll_1`. INFO findings are shown but never counted in the score.
 
 ## Why it matters when you scale
 

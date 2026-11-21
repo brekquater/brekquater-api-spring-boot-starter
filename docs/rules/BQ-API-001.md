@@ -1,10 +1,14 @@
-# BQ-API-001: Operation has an operationId
+---
+title: "BQ-API-001: Operation has an operationId"
+description: "Every operation has a non-empty operationId."
+slug: /rules/BQ-API-001
+rule_id: BQ-API-001
+severity: MINOR
+category: DESIGN
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | DESIGN |
-| **Checks** | Every operation has a non-empty `operationId`. |
+**Checks:** Every operation has a non-empty `operationId`.
 
 ## Why it matters when you scale
 
