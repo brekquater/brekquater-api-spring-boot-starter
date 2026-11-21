@@ -4,6 +4,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-21
+
 The first release. Everything below is new.
 
 ### Added
@@ -43,6 +45,7 @@ The first release. Everything below is new.
 
 ### Security
 
-- Built against Jackson 3.1.8 and 2.21.8, which fix CVE-2026-110879 (CVSS 9.8). Spring Boot 4.1.2 still manages 3.1.7 and 2.21.7, and an application's own Spring Boot version decides which Jackson it runs. Until a Spring Boot release manages the fixed versions, set them in your build, for example with the properties `jackson-bom.version` and `jackson-2-bom.version` when you use `spring-boot-starter-parent`.
+- Built against Jackson 3.3.0 and 2.23.0, which include the fix for CVE-2026-110879 (CVSS 9.8, fixed in 3.1.8 and 2.21.8). Spring Boot 4.1.2 still manages 3.1.7 and 2.21.7, and an application's own Spring Boot version decides which Jackson it runs. Until a Spring Boot release manages the fixed versions, set them in your build, for example with the properties `jackson-bom.version` and `jackson-2-bom.version` when you use `spring-boot-starter-parent`.
 
-[Unreleased]: https://github.com/brekquater/brekquater-api-spring-boot-starter/commits/master
+[Unreleased]: https://github.com/brekquater/brekquater-api-spring-boot-starter/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/brekquater/brekquater-api-spring-boot-starter/releases/tag/v0.1.0

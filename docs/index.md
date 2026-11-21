@@ -6,20 +6,13 @@ Add one dependency, run your Spring Boot application, open Swagger UI, and see w
 
 ## Quick start
 
-You need a Spring Boot 4.1 application that uses Spring MVC, and a JDK 17 or later. Until `0.1.0` is on Maven Central, install the starter from source first:
-
-```bash
-git clone https://github.com/brekquater/brekquater-api-spring-boot-starter.git
-cd brekquater-api-spring-boot-starter && ./mvnw install -DskipTests
-```
-
-Add the dependency:
+You need a Spring Boot 4.1 application that uses Spring MVC, and a JDK 17 or later. Add the dependency:
 
 ```xml
 <dependency>
   <groupId>com.brekquater</groupId>
   <artifactId>brekquater-api-spring-boot-starter</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 
