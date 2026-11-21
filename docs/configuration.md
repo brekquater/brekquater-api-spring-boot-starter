@@ -94,7 +94,7 @@ About `authenticated`:
 
 When the assessment is served, it also appears in two places:
 
-- **Inside Swagger UI**, as a collapsed "API maturity" bar between the API title and the operations. Click it to see the score card, category scores, the findings (most severe first, with filters for severity and category and a search box) and the build evidence. It follows Swagger UI's light and dark switch.
+- **Inside Swagger UI**, as a column on the right of the operations when the window is at least 1200 pixels wide, and as a collapsed "API maturity" bar between the API title and the operations on narrower screens. It shows the score card, category scores, the findings (most severe first, with filters for severity and category and a search box) and the build evidence. It follows Swagger UI's light and dark switch.
 - **On a dashboard page** at `{base-path}`, by default `/brekquater/api`. It lists your operations by tag with the number of findings on each; pick one to see only its findings. It has its own theme switch (System, Light, Dark), remembered in the browser. This page works without Swagger UI, so it is also the fallback if the panel cannot be added to Swagger UI. It reads the assessed OpenAPI document from `{base-path}/openapi`, which follows the same mode as the assessment.
 
 **Refresh** fetches the assessment again. It is re-run only when the OpenAPI document or a build report has changed; otherwise the cached result comes back.

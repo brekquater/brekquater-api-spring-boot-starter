@@ -933,6 +933,50 @@ html[data-theme="dark"] .bq-page .bq-panel {
   }
 }
 
+/*
+ * Beside Swagger UI. On wide screens the panel is a fixed column on the right, and Swagger UI's page is padded by
+ * the same width so nothing hides under it. Narrower screens keep the collapsible bar under the API title.
+ * The width must match ASIDE in panel.js.
+ */
+@media (min-width: 1200px) {
+  body.bq-has-aside {
+    box-sizing: border-box;
+    padding-right: 420px;
+  }
+
+  .bq-swagger-wrapper {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    width: 420px;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  .bq-swagger-wrapper .bq-panel {
+    min-height: 100%;
+    border-width: 0 0 0 1px;
+    border-radius: 0;
+  }
+
+  /* The score card says everything the summary line says, and the column cannot be collapsed. */
+  .bq-swagger-wrapper .bq-panel:has(> .bq-body) > .bq-summary {
+    display: none;
+  }
+
+  .bq-swagger-wrapper .bq-body {
+    border-top: 0;
+  }
+
+  .bq-swagger-wrapper .bq-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .bq-panel .bq-layout {
     grid-template-columns: minmax(0, 1fr);

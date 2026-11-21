@@ -13,6 +13,8 @@
   var STANDALONE_ROOT_ID = "brekquater-panel";
   var SWAGGER_UI_ANCHOR = ".swagger-ui .information-container";
   var SWAGGER_UI_WAIT_MS = 10000;
+  // Must match the "beside Swagger UI" media query in panel.css.
+  var ASIDE = window.matchMedia("(min-width: 1200px)");
   var THEME_KEY = "brekquater-theme";
   var THEMES = ["system", "light", "dark"];
   var THEME_NAMES = { system: "System", light: "Light", dark: "Dark" };
@@ -742,17 +744,26 @@
 
   // ---- Placing the panel ------------------------------------------------------------------------------------
 
+  // On wide screens the stylesheet turns the panel into a fixed column beside Swagger UI, and Swagger UI's page
+  // gets room for it. The panel stays where it was inserted: Swagger UI's elements belong to React and are never
+  // moved, which keeps the operations working. In the column the panel is always open.
   function injectIntoSwaggerUi(outcome) {
     whenSwaggerUiIsReady(function (anchor) {
       var wrapper = element("div", "bq-swagger-wrapper");
       anchor.parentNode.insertBefore(wrapper, anchor.nextSibling);
+      document.body.classList.add("bq-has-aside");
       var render = function (latest, expanded) {
         wrapper.textContent = "";
-        wrapper.appendChild(panel(latest, expanded, refresh));
+        wrapper.appendChild(panel(latest, expanded || ASIDE.matches, refresh));
       };
       var refresh = function () {
         fetchJson("/assessment").then(function (latest) { render(latest, true); });
       };
+      ASIDE.addEventListener("change", function (change) {
+        if (change.matches && wrapper.firstChild) {
+          wrapper.firstChild.open = true;
+        }
+      });
       render(outcome, false);
     });
   }

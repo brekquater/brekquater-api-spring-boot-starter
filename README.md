@@ -35,7 +35,7 @@ You need a Spring Boot 4.1 application that uses Spring MVC, and a JDK 17 or lat
    ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
    ```
 
-3. Open `http://localhost:8080/swagger-ui.html` and click **API maturity** under the title.
+3. Open `http://localhost:8080/swagger-ui.html` and look at the **API maturity** column on the right (on a narrow screen, click **API maturity** under the title).
 
 No application of your own at hand? The repository's demo breaks every rule on purpose. Clone the repository, then from its root:
 
