@@ -4,6 +4,15 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- 9 rules, checked against what springdoc generates for real controllers:
+  - design: a `200` has a body, otherwise `204` (`BQ-DES-005`); no two paths differ only in variable names (`BQ-DES-006`); `204`, `205` and `304` have no body (`BQ-DES-007`); `PATCH` uses JSON Merge Patch or JSON Patch (`BQ-DES-008`); schema patterns are anchored with `^` and `$` (`BQ-DES-009`);
+  - documentation: no `*/*` media types (`BQ-DOC-008`);
+  - naming: property names share one case style (`BQ-NAM-005`);
+  - security: no OAuth password flow (`BQ-SEC-010`, a blocker, from RFC 9700) and no sensitive Actuator endpoint in the document (`BQ-SEC-011`).
+- Rules can read request body media types, every schema with its location, and OAuth flows (`ApiOperation.requestContent()`, `OpenApiContext.schemas()`, `OpenApiContext.oauthFlows()`).
+
 ## [0.1.0] - 2026-11-21
 
 The first release. Everything below is new.

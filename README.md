@@ -50,7 +50,7 @@ cd brekquater-api-spring-boot-starter
 
 - **A panel inside Swagger UI** with the score, a grade, a security rating, a score per category, and the findings grouped by severity. Each finding says where the problem is, how to fix it in Spring, and links to its rule page.
 - **The same panel on a page of its own** at `/brekquater/api`, and the assessment as JSON at `/brekquater/api/assessment`.
-- **25 rules** across design, documentation, security, errors, naming and testing. See the [rule catalogue](https://starter.brekquater.com/api/rules/).
+- **34 rules** across design, documentation, security, errors, naming and testing. See the [rule catalogue](https://starter.brekquater.com/api/rules/).
 - **Build evidence.** If your build writes JaCoCo, Surefire or Failsafe reports, or an OSV-Scanner or OWASP Dependency-Check report, the starter reads them and checks coverage, failing tests and known vulnerabilities too. It reads files only; it never calls a vulnerability database. See [build reports](docs/reports.md).
 
 The score is a weighted pass rate from 0 to 100, in the style of the OpenSSF Scorecard. Categories with nothing to assess are shown as "not assessed" and left out of the score, rather than counted as perfect. Any blocker finding caps the grade at F.

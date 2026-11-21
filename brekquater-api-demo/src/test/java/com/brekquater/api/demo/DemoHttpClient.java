@@ -8,6 +8,7 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import tools.jackson.databind.JsonNode;
@@ -26,14 +27,28 @@ final class DemoHttpClient {
     }
 
     HttpResponse<String> get(String path) {
-        URI uri = URI.create("http://localhost:" + port + path);
+        return send(HttpRequest.newBuilder(uri(path)).build());
+    }
+
+    HttpResponse<String> patch(String path, String mediaType, String body) {
+        return send(HttpRequest.newBuilder(uri(path))
+                .header("Content-Type", mediaType)
+                .method("PATCH", BodyPublishers.ofString(body))
+                .build());
+    }
+
+    private URI uri(String path) {
+        return URI.create("http://localhost:" + port + path);
+    }
+
+    private HttpResponse<String> send(HttpRequest request) {
         try {
-            return client.send(HttpRequest.newBuilder(uri).build(), BodyHandlers.ofString());
+            return client.send(request, BodyHandlers.ofString());
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while calling " + uri, exception);
+            throw new IllegalStateException("Interrupted while calling " + request.uri(), exception);
         }
     }
 
