@@ -64,11 +64,11 @@ html[data-theme="dark"] .bq-page .bq-panel {
   color-scheme: dark;
   --bq-text: #f8f5ed;
   --bq-muted: #a9b1aa;
-  --bq-surface: #1f2a26;
-  --bq-subtle: #161d1a;
-  --bq-border: #34423c;
+  --bq-surface: #1c2022;
+  --bq-subtle: #1c2022;
+  --bq-border: #3a4246;
   --bq-accent: #c89b5b;
-  --bq-ring-track: #34423c;
+  --bq-ring-track: #3a4246;
   --bq-gold: #c89b5b;
   --bq-highlight-bg: #3a3222;
   --bq-highlight-text: #e6c48f;
@@ -109,11 +109,11 @@ html[data-theme="dark"] .bq-page .bq-panel {
     color-scheme: dark;
     --bq-text: #f8f5ed;
     --bq-muted: #a9b1aa;
-    --bq-surface: #1f2a26;
-    --bq-subtle: #161d1a;
-    --bq-border: #34423c;
+    --bq-surface: #1c2022;
+    --bq-subtle: #1c2022;
+    --bq-border: #3a4246;
     --bq-accent: #c89b5b;
-    --bq-ring-track: #34423c;
+    --bq-ring-track: #3a4246;
     --bq-gold: #c89b5b;
     --bq-highlight-bg: #3a3222;
     --bq-highlight-text: #e6c48f;
@@ -150,19 +150,12 @@ html[data-theme="dark"] .bq-page .bq-panel {
 }
 
 /*
- * Inside Swagger UI the panel takes Swagger UI's own page and border colours, so the column and the operations read
- * as one page. The brand ivory and charcoal stay on the dashboard page.
+ * Inside Swagger UI's light theme the panel takes Swagger UI's own page colour, so the column and the operations read
+ * as one page. The dark theme already uses Swagger UI's dark page colour everywhere.
  */
 .bq-swagger-wrapper .bq-panel {
   --bq-surface: #fafafa;
   --bq-subtle: #fafafa;
-}
-
-html.dark-mode .bq-swagger-wrapper .bq-panel {
-  --bq-surface: #1c2022;
-  --bq-subtle: #1c2022;
-  --bq-border: #3a4246;
-  --bq-ring-track: #3a4246;
 }
 
 /* Standalone page */
