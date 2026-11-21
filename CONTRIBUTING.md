@@ -81,6 +81,19 @@ CI rejects pull requests that contain commits without a `Signed-off-by:` line.
 
 Rule wording must be original. Cite the source of the idea; never copy text from another ruleset or guideline.
 
+## Changelog and releases
+
+If your change matters to users (a new rule, a fixed false positive, a changed default), add a line under
+`## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md), in the section that fits: Added, Changed, Fixed or Removed.
+Internal changes such as refactoring or build updates need no entry.
+
+Maintainers cut releases from `master`: they set the version, tag it, and publish to Maven Central. You never need
+keys, tokens or access to any account to contribute. The `Release` workflow's dry run works on a fork too, if you
+want to see the artifacts a release would contain.
+
+Versions follow [Semantic Versioning](https://semver.org/). Until `1.0.0`, a minor version may change the public
+contract (configuration properties, the `Rule` interface, the JSON schema), and the changelog always says so.
+
 ## Reporting security issues
 
 Do not open a public issue. See [SECURITY.md](SECURITY.md).

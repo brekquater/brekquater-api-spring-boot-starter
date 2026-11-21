@@ -57,4 +57,4 @@ nav:
   - Configuration: configuration.md
   - Build reports: reports.md
   - Rules: rules/index.md
-  - Maintainers: MAINTAINERS.md
+  - Contributing: https://github.com/brekquater/brekquater-api-spring-boot-starter/blob/master/CONTRIBUTING.md

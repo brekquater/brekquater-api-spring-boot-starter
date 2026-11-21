@@ -9,7 +9,8 @@
 #   Central Publisher Portal. It runs in the protected "release" environment, so a reviewer must approve it, and it
 #   stops at "validated": a maintainer still presses Publish on the portal.
 #
-# The secrets and settings it needs are described in docs/MAINTAINERS.md.
+# Publishing needs the "release" environment and its secrets (CENTRAL_USERNAME, CENTRAL_PASSWORD, GPG_PRIVATE_KEY,
+# GPG_PASSPHRASE), which only maintainers can set up. A fork can still run the dry run.
 name: Release
 
 on:

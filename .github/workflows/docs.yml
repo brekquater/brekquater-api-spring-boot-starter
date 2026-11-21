@@ -2,8 +2,7 @@
 # Copyright Brekquater
 
 # Builds the documentation site on every change, in strict mode so a broken link fails the build. Publishing to
-# GitHub Pages waits until a maintainer has enabled Pages and set the repository variable DOCS_DEPLOY to true;
-# see docs/MAINTAINERS.md.
+# GitHub Pages happens only when the repository variable DOCS_DEPLOY is true, which a maintainer sets.
 name: Docs
 
 on:
