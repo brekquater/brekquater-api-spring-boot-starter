@@ -13,43 +13,35 @@ It warns; it does not block. (Unless you ask it to: see [strict mode](#strict-mo
 
 ## Status
 
-**Pre-release.** Nothing is published to Maven Central yet; the first release will be `0.1.0`. Until then, build it from source as shown below. See [CHANGELOG.md](CHANGELOG.md) for what has landed.
+**Early release.** `0.1.0` is on Maven Central. Until `1.0`, the configuration properties and the JSON schema can still change between minor versions; [CHANGELOG.md](CHANGELOG.md) lists every change.
 
 ## Quick start
 
 You need a Spring Boot 4.1 application that uses Spring MVC, and a JDK 17 or later.
 
-1. Build the starter from source, which installs it in your local Maven repository:
-
-   ```bash
-   git clone https://github.com/brekquater/brekquater-api-spring-boot-starter.git
-   ```
-
-   ```bash
-   cd brekquater-api-spring-boot-starter && ./mvnw install -DskipTests
-   ```
-
-2. Add the starter to your application. It brings springdoc-openapi and Swagger UI with it if you do not have them yet:
+1. Add the starter to your application. It brings springdoc-openapi and Swagger UI with it if you do not have them yet:
 
    ```xml
    <dependency>
      <groupId>com.brekquater</groupId>
      <artifactId>brekquater-api-spring-boot-starter</artifactId>
-     <version>0.1.0-SNAPSHOT</version>
+     <version>0.1.0</version>
    </dependency>
    ```
 
-3. Run your application with the `dev` profile:
+2. Run your application with the `dev` profile:
 
    ```bash
    ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
    ```
 
-4. Open `http://localhost:8080/swagger-ui.html` and click **API maturity** under the title.
+3. Open `http://localhost:8080/swagger-ui.html` and click **API maturity** under the title.
 
-No application of your own at hand? The repository's demo breaks every rule on purpose. From the repository root, after step 1:
+No application of your own at hand? The repository's demo breaks every rule on purpose. Clone the repository, then from its root:
 
 ```bash
+git clone https://github.com/brekquater/brekquater-api-spring-boot-starter.git
+cd brekquater-api-spring-boot-starter
 ./mvnw -pl brekquater-api-demo spring-boot:run -Dspring-boot.run.profiles=dev,bad
 ```
 
@@ -99,7 +91,7 @@ The difference is where it lives: inside your Spring Boot application and its Sw
 
 | Brekquater API starter | Spring Boot | springdoc-openapi | Java |
 |---|---|---|---|
-| 0.1.0 (in development) | 4.1.x | 3.2.x | 17, 21, 25 |
+| 0.1.0 | 4.1.x | 3.2.x | 17, 21, 25 |
 
 Spring MVC only. WebFlux and Spring Boot 3.x are not supported.
 
