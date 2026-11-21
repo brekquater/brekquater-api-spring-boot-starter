@@ -107,8 +107,8 @@ const config: Config = {
         alt: 'Brekquater',
         src: 'img/logo-symbol.webp',
         srcDark: 'img/logo-symbol-ivory.webp',
-        width: 32,
-        height: 28,
+        width: 37,
+        height: 32,
       },
       items: [
         {type: 'doc', docId: 'index', label: 'Docs', position: 'left'},
