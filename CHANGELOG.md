@@ -12,6 +12,11 @@ All notable changes to this project are recorded here. The format follows [Keep 
   - naming: property names share one case style (`BQ-NAM-005`);
   - security: no OAuth password flow (`BQ-SEC-010`, a blocker, from RFC 9700) and no sensitive Actuator endpoint in the document (`BQ-SEC-011`).
 - Rules can read request body media types, every schema with its location, and OAuth flows (`ApiOperation.requestContent()`, `OpenApiContext.schemas()`, `OpenApiContext.oauthFlows()`).
+- 10 security rules, checked against what springdoc generates for real `@SecurityScheme` and `@SecurityRequirement` annotations:
+  - authentication: HTTP Basic is not the only login (`BQ-SEC-003`); no API key in the query string (`BQ-SEC-004`); no credentials in path or query parameters (`BQ-SEC-005`); no Negotiate or OAuth 1.0 scheme (`BQ-SEC-015`); HTTP schemes are IANA-registered, which catches `scheme: JWT` (`BQ-SEC-016`);
+  - OAuth: no implicit flow (`BQ-SEC-012`, from RFC 9700); required scopes are declared (`BQ-SEC-013`); flow URLs use https (`BQ-SEC-014`);
+  - transport and data: declared servers use https (`BQ-SEC-006`); no password or secret is returned unless write-only (`BQ-SEC-017`).
+- Rules can read security schemes, the scopes of each security requirement, the scopes and URLs of OAuth flows, the `servers` list, and whether a schema refers to another one or is write-only (`OpenApiContext.securitySchemes()`, `servers()`, `ApiSecurityRequirement.scopes()`, `ApiOAuthFlow.scopes()`, `ApiSchemaNode.writeOnly()`).
 - `{base-path}/openapi` serves the assessed OpenAPI document to the dashboard, under the same mode and access check as the assessment.
 
 ### Changed
