@@ -36,7 +36,7 @@ You need a Spring Boot 4.1 application that uses Spring MVC, and a JDK 17 or lat
    ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
    ```
 
-3. Open `http://localhost:8080/swagger-ui.html` and click **API maturity** under the title.
+3. Open `http://localhost:8080/swagger-ui.html` and look at the **API maturity** column on the right (on a narrow screen, click **API maturity** under the title).
 
 No application of your own at hand? The repository's demo breaks every rule on purpose. Clone the repository, then from its root:
 
@@ -48,8 +48,8 @@ cd brekquater-api-spring-boot-starter
 
 ## What you get
 
-- **A panel inside Swagger UI** with the score, a grade, a security rating, a score per category, and the findings grouped by severity. Each finding says where the problem is, how to fix it in Spring, and links to its rule page.
-- **The same panel on a page of its own** at `/brekquater/api`, and the assessment as JSON at `/brekquater/api/assessment`.
+- **A panel inside Swagger UI** with the score, a grade, a security rating, a score per category, and the findings, most severe first, with filters and search. Each finding says where the problem is, how to fix it in Spring, and links to its rule page.
+- **A dashboard page** at `/brekquater/api` that lists your operations with their findings, with a light and dark theme switch, and the assessment as JSON at `/brekquater/api/assessment`.
 - **34 rules** across design, documentation, security, errors, naming and testing. See the [rule catalogue](https://starter.brekquater.com/api/rules/).
 - **Build evidence.** If your build writes JaCoCo, Surefire or Failsafe reports, or an OSV-Scanner or OWASP Dependency-Check report, the starter reads them and checks coverage, failing tests and known vulnerabilities too. It reads files only; it never calls a vulnerability database. See [build reports](docs/reports.md).
 

@@ -12,6 +12,13 @@ All notable changes to this project are recorded here. The format follows [Keep 
   - naming: property names share one case style (`BQ-NAM-005`);
   - security: no OAuth password flow (`BQ-SEC-010`, a blocker, from RFC 9700) and no sensitive Actuator endpoint in the document (`BQ-SEC-011`).
 - Rules can read request body media types, every schema with its location, and OAuth flows (`ApiOperation.requestContent()`, `OpenApiContext.schemas()`, `OpenApiContext.oauthFlows()`).
+- `{base-path}/openapi` serves the assessed OpenAPI document to the dashboard, under the same mode and access check as the assessment.
+
+### Changed
+
+- The panel inside Swagger UI is now a column on the right of the operations on screens at least 1200 pixels wide; narrower screens keep the collapsible bar under the title. It is also redesigned: a score card with the grade in words, coloured category scores, findings in one list (most severe first) with filters for severity and category and a search box, coverage bars, and a **Refresh** button.
+- The panel and the dashboard use the Brekquater brand: ivory and charcoal surfaces, gold accents, section labels in spaced capitals, and the Brekquater mark. Severity and score colours are unchanged.
+- The page at `/brekquater/api` is now a dashboard: operations listed by tag with their finding counts, a view per operation, and a theme switch (System, Light, Dark).
 
 ## [0.1.0] - 2026-11-21
 

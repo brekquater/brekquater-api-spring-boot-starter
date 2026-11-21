@@ -8,6 +8,7 @@ import com.brekquater.api.rules.report.ReportWriter;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
+import java.util.function.Supplier;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.CacheControl;
@@ -19,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Serves the assessment as the versioned JSON contract. It is read-only, hidden from the application's own OpenAPI
- * document, and never returns a stack trace or exception message.
+ * Serves the assessment as the versioned JSON contract, and the document it assessed. Both are read-only, hidden from
+ * the application's own OpenAPI document, and never return a stack trace or exception message.
  */
 @Hidden
 @RestController
@@ -43,16 +44,34 @@ final class AssessmentEndpoint {
 
     @GetMapping(path = "/assessment", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> assessment(HttpServletRequest request) {
+        return guarded(() -> ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(json(service.assess(source.fetch(request)))));
+    }
+
+    /**
+     * The document that was assessed, so the dashboard page can list the operations. Served here rather than read
+     * from springdoc's own path so it follows the same guard, and works with any {@link OpenApiDocumentSource}.
+     */
+    @GetMapping(path = "/openapi", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> document(HttpServletRequest request) {
+        return guarded(() -> source.fetch(request)
+                .map(document -> ResponseEntity.ok()
+                        .cacheControl(CacheControl.noStore())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(document.json()))
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND)));
+    }
+
+    private ResponseEntity<String> guarded(Supplier<ResponseEntity<String>> response) {
         if (!guard.admitsCurrentCaller()) {
             return problem(HttpStatus.UNAUTHORIZED);
         }
         try {
-            return ResponseEntity.ok()
-                    .cacheControl(CacheControl.noStore())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(json(service.assess(source.fetch(request))));
+            return response.get();
         } catch (RuntimeException exception) {
-            LOGGER.error("The API assessment failed with " + exception.getClass().getName(), exception);
+            LOGGER.error("The Brekquater endpoint failed with " + exception.getClass().getName(), exception);
             return problem(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
