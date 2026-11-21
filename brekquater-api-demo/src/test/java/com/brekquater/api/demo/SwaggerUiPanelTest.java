@@ -57,6 +57,14 @@ class SwaggerUiPanelTest {
     }
 
     @Test
+    void servesTheDocumentTheDashboardListsOperationsFrom() {
+        HttpResponse<String> document = new DemoHttpClient(port).get("/brekquater/api/openapi");
+
+        assertThat(document.statusCode()).isEqualTo(OK);
+        assertThat(document.body()).contains("\"paths\"").doesNotContain("/brekquater/api/assessment");
+    }
+
+    @Test
     void sendsTheStandalonePageToItsHtmlFile() {
         DemoHttpClient http = new DemoHttpClient(port);
 

@@ -22,8 +22,11 @@ class ProductionProfileTest {
     private int port;
 
     @Test
-    void doesNotServeTheAssessment() {
-        assertThat(new DemoHttpClient(port).get("/brekquater/api/assessment").statusCode()).isEqualTo(NOT_FOUND);
+    void doesNotServeTheAssessmentOrTheDocument() {
+        DemoHttpClient http = new DemoHttpClient(port);
+
+        assertThat(http.get("/brekquater/api/assessment").statusCode()).isEqualTo(NOT_FOUND);
+        assertThat(http.get("/brekquater/api/openapi").statusCode()).isEqualTo(NOT_FOUND);
     }
 
     @Test

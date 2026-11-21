@@ -10,7 +10,7 @@ A value the starter cannot use stops the application at startup. The startup rep
 |---|---|---|---|
 | `brekquater.api.enabled` | `true` | Whether the starter is active at all. `false` registers nothing. | None. |
 | `brekquater.api.panel.mode` | *unset* | Who may see the assessment: `disabled`, `authenticated` or `public`. When unset, it is `public` while the `dev` or `local` profile is active, and `disabled` otherwise. | **High.** The assessment lists every operation of your API and its weaknesses. Never set `public` on an environment that untrusted people can reach. See [Exposure](#exposure). |
-| `brekquater.api.panel.base-path` | `/brekquater/api` | Path under which the assessment is served. The JSON endpoint is `{base-path}/assessment`. | Low. Changing the path is not a protection; use the mode for that. |
+| `brekquater.api.panel.base-path` | `/brekquater/api` | Path under which the assessment is served. The JSON endpoint is `{base-path}/assessment`; the dashboard page also reads the assessed document from `{base-path}/openapi`. | Low. Changing the path is not a protection; use the mode for that. |
 | `brekquater.api.rules.disabled` | *empty* | Comma-separated list of rule IDs that do not run, for example `BQ-DES-001,BQ-NAM-003`. An unknown ID stops startup. | Disabling a security rule (`BQ-SEC-*`) hides security findings. |
 | `brekquater.api.rules.severity-overrides.<RULE-ID>` | *none* | Severity to use instead of a rule's own: `BLOCKER`, `MAJOR`, `MINOR` or `INFO`. Only security rules can be raised to `BLOCKER`. | Lowering a security rule's severity lowers its weight in the score and the security rating. |
 | `brekquater.api.score.weights.blocker` | `10` | Weight of BLOCKER rules in the score. | None. |
@@ -94,8 +94,10 @@ About `authenticated`:
 
 When the assessment is served, it also appears in two places:
 
-- **Inside Swagger UI**, as a collapsed "API maturity" bar between the API title and the operations. Click it to see category scores and the findings, grouped by severity. It follows Swagger UI's light and dark switch.
-- **On a page of its own** at `{base-path}`, by default `/brekquater/api`. This page works without Swagger UI, so it is also the fallback if the panel cannot be added to Swagger UI.
+- **Inside Swagger UI**, as a column on the right of the operations when the window is at least 1200 pixels wide, and as a collapsed "API maturity" bar between the API title and the operations on narrower screens. It shows the score card, category scores, the findings (most severe first, with filters for severity and category and a search box) and the build evidence. It follows Swagger UI's light and dark switch.
+- **On a dashboard page** at `{base-path}`, by default `/brekquater/api`. It lists your operations by tag with the number of findings on each; pick one to see only its findings. It has its own theme switch (System, Light, Dark), remembered in the browser. This page works without Swagger UI, so it is also the fallback if the panel cannot be added to Swagger UI. It reads the assessed OpenAPI document from `{base-path}/openapi`, which follows the same mode as the assessment.
+
+**Refresh** fetches the assessment again. It is re-run only when the OpenAPI document or a build report has changed; otherwise the cached result comes back.
 
 The panel is added through springdoc's `SwaggerIndexTransformer`. If your application defines its own bean of that type, the starter leaves it alone; the page of its own still works.
 
