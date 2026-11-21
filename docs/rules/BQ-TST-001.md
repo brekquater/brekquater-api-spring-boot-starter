@@ -1,11 +1,16 @@
-# BQ-TST-001: Line coverage reaches the target
+---
+title: "BQ-TST-001: Line coverage reaches the target"
+description: "The share of lines that tests run, from the project totals of a JaCoCo XML report, is at least the target: 80% by default."
+slug: /rules/BQ-TST-001
+rule_id: BQ-TST-001
+severity: MAJOR
+category: TESTING
+reads: COVERAGE
+---
 
-| | |
-|---|---|
-| **Severity** | MAJOR |
-| **Category** | TESTING |
-| **Checks** | The share of lines that tests run, from the project totals of a JaCoCo XML report, is at least the target: 80% by default. |
-| **Reads** | `jacoco.xml` from your build. See [reports](../reports.md). |
+**Checks:** The share of lines that tests run, from the project totals of a JaCoCo XML report, is at least the target: 80% by default.
+
+**Reads:** `jacoco.xml` from your build. See [reports](../reports.md).
 
 ## Why it matters when you scale
 

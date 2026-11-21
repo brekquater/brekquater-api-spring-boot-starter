@@ -32,17 +32,33 @@ Then open `http://localhost:8080/swagger-ui.html`, and `http://localhost:8080/br
 
 ## Documentation site
 
-The pages under `docs/` are published with MkDocs and Material for MkDocs. To preview them, with Python 3.11 or later:
+The pages are Markdown files under `docs/`. The site around them is built with [Docusaurus](https://docusaurus.io/) from `website/`. To preview it, with Node.js 20 or later:
 
 ```bash
-pip install --require-hashes --no-deps -r docs/requirements.txt
+cd website
+npm ci
+npm start
 ```
 
-```bash
-mkdocs serve
+Then open `http://localhost:3000/api/`. Search only works on a built site (`npm run build`, then `npm run serve`).
+
+The `Docs` workflow builds the site on every pull request, so a broken link fails it.
+
+A rule page is plain Markdown with front matter; the catalogue and the sidebar are built from it, and a test checks it against the rule's code:
+
+```yaml
+---
+title: "BQ-API-001: Operation has an operationId"
+description: "Every operation has a non-empty operationId."
+slug: /rules/BQ-API-001
+rule_id: BQ-API-001
+severity: MINOR
+category: DESIGN
+reads: OPENAPI
+---
 ```
 
-The `Docs` workflow builds the site with `--strict`, so a broken link fails the pull request. Never rename or move a page under `docs/rules/`: every finding links to it.
+Never change a rule page's `slug` or file name: every finding links to `https://starter.brekquater.com/api/rules/<RULE-ID>`, and released versions keep those links forever.
 
 ## Sign your commits (DCO)
 
@@ -76,7 +92,7 @@ CI rejects pull requests that contain commits without a `Signed-off-by:` line.
 1. **Open a rule request** issue, so the check and its public source can be agreed first. A rule checks exactly one thing.
 2. **Write the tests first**: a passing, a failing and an edge-case OpenAPI fixture, as inline YAML text blocks.
 3. **Add one rule class** in `com.brekquater.api.rules.catalogue`, and add its name to `META-INF/services/com.brekquater.api.rules.Rule`. A rule that checks each operation on its own extends `OperationRule` and only implements `check`; see `OperationHasSummaryOrDescription`. A rule with other targets (responses, paths, security entries) extends `OpenApiRule<T>`; see `ResponseContentHasSchema`.
-4. **Add the doc page** `docs/rules/<RULE-ID>.md`: why it matters, bad and good YAML, the Spring fix, how to suppress it, and a "Based on" link.
+4. **Add the doc page** `docs/rules/<RULE-ID>.md`, starting with the front matter shown under [Documentation site](#documentation-site): why it matters, bad and good YAML, the Spring fix, how to suppress it, and a "Based on" link.
 5. **Run `./mvnw verify`**. The build fails if the rule is not registered, has no doc page, or touches the OpenAPI library directly instead of going through `OpenApiContext`.
 
 Rule wording must be original. Cite the source of the idea; never copy text from another ruleset or guideline.

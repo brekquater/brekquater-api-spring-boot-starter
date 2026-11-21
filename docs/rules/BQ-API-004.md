@@ -1,10 +1,14 @@
-# BQ-API-004: operationId is unique
+---
+title: "BQ-API-004: operationId is unique"
+description: "No two operations in the document share an operationId. Every operation that shares one is reported."
+slug: /rules/BQ-API-004
+rule_id: BQ-API-004
+severity: MAJOR
+category: DESIGN
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MAJOR |
-| **Category** | DESIGN |
-| **Checks** | No two operations in the document share an `operationId`. Every operation that shares one is reported. |
+**Checks:** No two operations in the document share an `operationId`. Every operation that shares one is reported.
 
 ## Why it matters when you scale
 

@@ -1,12 +1,14 @@
-# BQ-ERR-001: Operation documents an error response
+---
+title: "BQ-ERR-001: Operation documents an error response"
+description: "Every operation documents at least one error response: a 4xx or 5xx status code, a 4XX or 5XX range, or default."
+slug: /rules/BQ-ERR-001
+rule_id: BQ-ERR-001
+severity: MAJOR
+category: ERRORS
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MAJOR |
-| **Category** | ERRORS |
-| **Checks** | Every operation documents at least one error response: a `4xx` or `5xx` status code, a `4XX` or `5XX` range, or `default`. |
-
-The rule does not demand a particular status code. Any documented error passes.
+**Checks:** Every operation documents at least one error response: a `4xx` or `5xx` status code, a `4XX` or `5XX` range, or `default`.
 
 ## Why it matters when you scale
 

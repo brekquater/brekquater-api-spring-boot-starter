@@ -1,4 +1,10 @@
-# Brekquater API Spring Boot Starter
+---
+title: Getting started
+slug: /getting-started
+description: Add the Brekquater API starter to a Spring Boot 4.1 application and see its findings in Swagger UI.
+---
+
+# Getting started
 
 Add one dependency, run your Spring Boot application, open Swagger UI, and see what can be improved in your API design, plus a maturity score. It warns; it does not block, unless you turn on strict mode.
 
@@ -20,7 +26,7 @@ Run your application with the `dev` profile, open `http://localhost:8080/swagger
 
 ## Where to go next
 
-- [Rule catalogue](rules/index.md): what each of the 25 rules checks, and how to fix or suppress it.
+- [Rule catalogue](rules/index.mdx): what each of the 25 rules checks, and how to fix or suppress it.
 - [Configuration](configuration.md): exposure modes, rules, scoring, report locations and strict mode.
 - [Build reports](reports.md): add coverage, test results and known vulnerabilities to the assessment.
 

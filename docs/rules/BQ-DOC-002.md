@@ -1,10 +1,14 @@
-# BQ-DOC-002: API declares a contact
+---
+title: "BQ-DOC-002: API declares a contact"
+description: "info.contact gives at least one non-blank name, url or email."
+slug: /rules/BQ-DOC-002
+rule_id: BQ-DOC-002
+severity: MINOR
+category: DOCUMENTATION
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | DOCUMENTATION |
-| **Checks** | `info.contact` gives at least one non-blank `name`, `url` or `email`. |
+**Checks:** `info.contact` gives at least one non-blank `name`, `url` or `email`.
 
 ## Why it matters when you scale
 

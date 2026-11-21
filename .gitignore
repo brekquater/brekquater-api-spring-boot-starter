@@ -41,12 +41,11 @@ target/
 bin/
 out/
 
-# Documentation site output, and a Python environment for previewing it (see CONTRIBUTING.md)
-/site/
+# Documentation site: dependencies, Docusaurus's cache and its output (see CONTRIBUTING.md)
+/website/node_modules/
+/website/.docusaurus/
+/website/build/
 /_site/
-.venv/
-venv/
-__pycache__/
 
 # Operating systems
 .DS_Store

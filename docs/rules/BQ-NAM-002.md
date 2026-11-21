@@ -1,10 +1,14 @@
-# BQ-NAM-002: Path has no trailing slash
+---
+title: "BQ-NAM-002: Path has no trailing slash"
+description: "No path ends with /, except the root path / itself."
+slug: /rules/BQ-NAM-002
+rule_id: BQ-NAM-002
+severity: MINOR
+category: NAMING
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | NAMING |
-| **Checks** | No path ends with `/`, except the root path `/` itself. |
+**Checks:** No path ends with `/`, except the root path `/` itself.
 
 ## Why it matters when you scale
 

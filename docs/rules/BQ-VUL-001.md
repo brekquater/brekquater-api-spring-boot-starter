@@ -1,11 +1,16 @@
-# BQ-VUL-001: No Critical known vulnerability in dependencies
+---
+title: "BQ-VUL-001: No Critical known vulnerability in dependencies"
+description: "The dependency vulnerability report lists no advisory in the Critical band (CVSS base score 9.0 to 10.0)."
+slug: /rules/BQ-VUL-001
+rule_id: BQ-VUL-001
+severity: BLOCKER
+category: SECURITY
+reads: VULNERABILITIES
+---
 
-| | |
-|---|---|
-| **Severity** | BLOCKER |
-| **Category** | SECURITY |
-| **Checks** | The dependency vulnerability report lists no advisory in the **Critical** band (CVSS base score 9.0 to 10.0). |
-| **Reads** | An OSV-Scanner or OWASP Dependency-Check JSON report from your build. See [reports](../reports.md). |
+**Checks:** The dependency vulnerability report lists no advisory in the **Critical** band (CVSS base score 9.0 to 10.0).
+
+**Reads:** An OSV-Scanner or OWASP Dependency-Check JSON report from your build. See [reports](../reports.md).
 
 ## Why it matters when you scale
 

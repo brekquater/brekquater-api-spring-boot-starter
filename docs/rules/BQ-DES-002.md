@@ -1,10 +1,14 @@
-# BQ-DES-002: GET has no request body
+---
+title: "BQ-DES-002: GET has no request body"
+description: "No GET operation declares a requestBody."
+slug: /rules/BQ-DES-002
+rule_id: BQ-DES-002
+severity: MAJOR
+category: DESIGN
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MAJOR |
-| **Category** | DESIGN |
-| **Checks** | No `GET` operation declares a `requestBody`. |
+**Checks:** No `GET` operation declares a `requestBody`.
 
 ## Why it matters when you scale
 

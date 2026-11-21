@@ -1,11 +1,16 @@
-# BQ-TST-002: Branch coverage reaches the target
+---
+title: "BQ-TST-002: Branch coverage reaches the target"
+description: "The share of branches that tests take, from the project totals of a JaCoCo XML report, is at least the target: 70% by default. A project without branches is not checked."
+slug: /rules/BQ-TST-002
+rule_id: BQ-TST-002
+severity: MINOR
+category: TESTING
+reads: COVERAGE
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | TESTING |
-| **Checks** | The share of branches that tests take, from the project totals of a JaCoCo XML report, is at least the target: 70% by default. A project without branches is not checked. |
-| **Reads** | `jacoco.xml` from your build. See [reports](../reports.md). |
+**Checks:** The share of branches that tests take, from the project totals of a JaCoCo XML report, is at least the target: 70% by default. A project without branches is not checked.
+
+**Reads:** `jacoco.xml` from your build. See [reports](../reports.md).
 
 ## Why it matters when you scale
 

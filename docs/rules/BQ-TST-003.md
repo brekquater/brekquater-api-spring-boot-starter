@@ -1,11 +1,16 @@
-# BQ-TST-003: No test fails
+---
+title: "BQ-TST-003: No test fails"
+description: "No test case in the Surefire or Failsafe reports failed or ended with an error. Each test that ran is a target; skipped tests are not."
+slug: /rules/BQ-TST-003
+rule_id: BQ-TST-003
+severity: MAJOR
+category: TESTING
+reads: TEST_RESULTS
+---
 
-| | |
-|---|---|
-| **Severity** | MAJOR |
-| **Category** | TESTING |
-| **Checks** | No test case in the Surefire or Failsafe reports failed or ended with an error. Each test that ran is a target; skipped tests are not. |
-| **Reads** | `TEST-*.xml` files in `target/surefire-reports` and `target/failsafe-reports`. See [reports](../reports.md). |
+**Checks:** No test case in the Surefire or Failsafe reports failed or ended with an error. Each test that ran is a target; skipped tests are not.
+
+**Reads:** `TEST-*.xml` files in `target/surefire-reports` and `target/failsafe-reports`. See [reports](../reports.md).
 
 ## Why it matters when you scale
 

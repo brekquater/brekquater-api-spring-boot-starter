@@ -1,10 +1,14 @@
-# BQ-ERR-002: Error responses use problem details
+---
+title: "BQ-ERR-002: Error responses use problem details"
+description: "Every documented error response (4xx, 5xx, 4XX, 5XX or default) that has a body offers application/problem+json (or application/problem+xml). Error responses without a body are not checked."
+slug: /rules/BQ-ERR-002
+rule_id: BQ-ERR-002
+severity: MINOR
+category: ERRORS
+reads: OPENAPI
+---
 
-| | |
-|---|---|
-| **Severity** | MINOR |
-| **Category** | ERRORS |
-| **Checks** | Every documented error response (`4xx`, `5xx`, `4XX`, `5XX` or `default`) that has a body offers `application/problem+json` (or `application/problem+xml`). Error responses without a body are not checked. |
+**Checks:** Every documented error response (`4xx`, `5xx`, `4XX`, `5XX` or `default`) that has a body offers `application/problem+json` (or `application/problem+xml`). Error responses without a body are not checked.
 
 ## Why it matters when you scale
 
