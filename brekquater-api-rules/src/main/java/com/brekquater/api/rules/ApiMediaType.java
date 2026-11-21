@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * One media type of a response body, for example {@code application/json}.
+ * One media type of a request or response body, for example {@code application/json}.
  *
  * @param name the media type as written in the document
  * @param pointer the location of the media type in the document

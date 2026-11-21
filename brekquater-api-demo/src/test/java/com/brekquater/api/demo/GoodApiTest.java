@@ -24,6 +24,7 @@ import tools.jackson.databind.JsonNode;
 class GoodApiTest {
 
     private static final int OK = 200;
+    private static final int UNSUPPORTED_MEDIA_TYPE = 415;
 
     @LocalServerPort
     private int port;
@@ -34,6 +35,16 @@ class GoodApiTest {
 
         assertThat(http.get("/orders?page=0&size=10").body()).contains("SHIPPED");
         assertThat(http.get("/swagger-ui/index.html").statusCode()).isEqualTo(OK);
+    }
+
+    @Test
+    void acceptsAPartialUpdateSentAsJsonMergePatch() {
+        DemoHttpClient http = new DemoHttpClient(port);
+
+        assertThat(http.patch("/orders/1001", "application/merge-patch+json", "{\"status\":\"CANCELLED\"}").body())
+                .contains("\"status\":\"CANCELLED\"");
+        assertThat(http.patch("/orders/1001", "application/json", "{\"status\":\"CANCELLED\"}").statusCode())
+                .isEqualTo(UNSUPPORTED_MEDIA_TYPE);
     }
 
     @Test

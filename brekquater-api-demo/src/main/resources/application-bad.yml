@@ -9,3 +9,12 @@ brekquater:
       coverage: samples/bad/jacoco.xml
       test-results: samples/bad
       vulnerabilities: samples/bad/osv-scanner.json
+
+# BQ-SEC-011: the environment endpoint is exposed and springdoc lists Actuator endpoints in the document.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,env
+springdoc:
+  show-actuator: true

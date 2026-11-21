@@ -109,7 +109,7 @@ class RuleRegistryTest {
     void discoversTheBuiltInRules() {
         assertThat(RuleRegistry.fromServiceLoader().rules())
                 .extracting(Rule::id)
-                .hasSize(25)
+                .hasSize(34)
                 .contains("BQ-API-001", "BQ-DOC-001", "BQ-ERR-001", "BQ-SEC-001", "BQ-NAM-003", "BQ-TST-001", "BQ-VUL-001");
     }
 }

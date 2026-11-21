@@ -25,6 +25,10 @@ final class DocumentTargets {
         return responses(document).stream().flatMap(response -> response.content().stream()).toList();
     }
 
+    static List<ApiMediaType> requestMediaTypes(OpenApiContext document) {
+        return document.operations().stream().flatMap(operation -> operation.requestContent().stream()).toList();
+    }
+
     static List<ApiOperation> operationsWithId(OpenApiContext document) {
         return document.operations().stream()
                 .filter(operation -> operation.operationId().filter(Predicate.not(String::isBlank)).isPresent())

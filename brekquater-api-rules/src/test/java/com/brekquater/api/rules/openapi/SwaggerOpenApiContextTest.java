@@ -4,7 +4,10 @@
 package com.brekquater.api.rules.openapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
+import com.brekquater.api.rules.ApiMediaType;
+import com.brekquater.api.rules.ApiOAuthFlow;
 import com.brekquater.api.rules.ApiOperation;
 import com.brekquater.api.rules.ApiResponse;
 import com.brekquater.api.rules.DocumentSummary;
@@ -218,6 +221,105 @@ class SwaggerOpenApiContextTest {
         OpenAPI openApi = new OpenAPI().paths(new Paths().addPathItem("/orders", null));
 
         assertThat(new SwaggerOpenApiContext(openApi).operations()).isEmpty();
+    }
+
+    @Test
+    void readsTheMediaTypesOfARequestBody() {
+        ApiOperation operation = contextOf("""
+                openapi: 3.1.0
+                info: {title: Orders API, version: "1.0"}
+                paths:
+                  /orders/{id}:
+                    patch:
+                      requestBody: {content: {application/merge-patch+json: {schema: {type: object}}, application/json: {}}}
+                      responses: {'200': {description: OK}}
+                """).operations().get(0);
+
+        assertThat(operation.requestContent())
+                .extracting(ApiMediaType::name, mediaType -> mediaType.pointer().value())
+                .containsExactly(
+                        tuple("application/json", "/paths/~1orders~1{id}/patch/requestBody/content/application~1json"),
+                        tuple(
+                                "application/merge-patch+json",
+                                "/paths/~1orders~1{id}/patch/requestBody/content/application~1merge-patch+json"));
+    }
+
+    @Test
+    void listsEverySchemaWithItsLocationAndPatternWithoutFollowingReferences() {
+        OpenApiContext context = contextOf("""
+                openapi: 3.1.0
+                info: {title: Orders API, version: "1.0"}
+                paths:
+                  /orders/{id}:
+                    parameters:
+                      - {name: id, in: path, required: true, schema: {type: string, pattern: '^[0-9]+$'}}
+                    get:
+                      responses:
+                        '200': {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/Order'}}}}
+                components:
+                  schemas:
+                    Order:
+                      type: object
+                      properties:
+                        lines: {type: array, items: {$ref: '#/components/schemas/Line'}}
+                      additionalProperties: {type: string}
+                    Line:
+                      allOf: [{type: object}]
+                """);
+
+        assertThat(context.schemas())
+                .extracting(schema -> schema.pointer().value(), schema -> schema.pattern().orElse(""))
+                .containsExactly(
+                        tuple("/components/schemas/Line", ""),
+                        tuple("/components/schemas/Line/allOf/0", ""),
+                        tuple("/components/schemas/Order", ""),
+                        tuple("/components/schemas/Order/properties/lines", ""),
+                        tuple("/components/schemas/Order/properties/lines/items", ""),
+                        tuple("/components/schemas/Order/additionalProperties", ""),
+                        tuple("/paths/~1orders~1{id}/parameters/0/schema", "^[0-9]+$"),
+                        tuple("/paths/~1orders~1{id}/get/responses/200/content/application~1json/schema", ""));
+    }
+
+    @Test
+    void namesAPropertyOnlyWhenTheSchemaSitsUnderProperties() {
+        OpenApiContext context = contextOf("""
+                openapi: 3.1.0
+                info: {title: Orders API, version: "1.0"}
+                paths: {}
+                components:
+                  schemas:
+                    properties:
+                      type: object
+                      properties:
+                        items: {type: array, items: {type: string}}
+                """);
+
+        assertThat(context.schemas())
+                .extracting(schema -> schema.propertyName().orElse("-"))
+                .containsExactly("-", "items", "-");
+    }
+
+    @Test
+    void listsTheFlowsOfOAuthSchemesOnly() {
+        OpenApiContext context = contextOf("""
+                openapi: 3.1.0
+                info: {title: Orders API, version: "1.0"}
+                paths: {}
+                components:
+                  securitySchemes:
+                    bearer: {type: http, scheme: bearer}
+                    login:
+                      type: oauth2
+                      flows:
+                        password: {tokenUrl: 'https://auth.example.com/token', scopes: {}}
+                        authorizationCode: {authorizationUrl: 'https://auth.example.com/authorize', tokenUrl: 'https://auth.example.com/token', scopes: {}}
+                """);
+
+        assertThat(context.oauthFlows())
+                .extracting(ApiOAuthFlow::type, flow -> flow.pointer().value())
+                .containsExactly(
+                        tuple("authorizationCode", "/components/securitySchemes/login/flows/authorizationCode"),
+                        tuple("password", "/components/securitySchemes/login/flows/password"));
     }
 
     private static OpenApiContext contextOf(String yaml) {

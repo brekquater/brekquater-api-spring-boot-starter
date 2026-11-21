@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,7 @@ class OrdersController {
             Map.of("1001", new Order("1001", "SHIPPED"), "1002", new Order("1002", "PENDING"));
     private static final String NEW_ORDER_ID = "1003";
     private static final String NEW_ORDER_STATUS = "PENDING";
+    private static final String MERGE_PATCH = "application/merge-patch+json";
 
     @Operation(summary = "List orders, one page at a time")
     @GetMapping
@@ -56,6 +58,20 @@ class OrdersController {
     void cancelOrder(@PathVariable String id) {
         findOrder(id);
     }
+
+    // JSON Merge Patch (RFC 7396): fields that are sent are replaced, fields that are left out stay as they are.
+    @Operation(summary = "Change the status of an order")
+    @PatchMapping(path = "/{id}", consumes = MERGE_PATCH)
+    Order changeOrder(@PathVariable String id, @RequestBody OrderChange change) {
+        return new Order(findOrder(id).id(), change.status());
+    }
+
+    /**
+     * The fields of an order a client may change.
+     *
+     * @param status the new status
+     */
+    record OrderChange(String status) {}
 
     /**
      * What a client sends to place an order.
