@@ -69,6 +69,39 @@
     return parent;
   }
 
+  // The Brekquater mark, simplified so it stays readable at small sizes. The letter uses the text colour, so it
+  // follows the theme; the sun is always gold.
+  var MARK_VIEW_BOX = "0 0 100 85";
+  var MARK_STROKES = [
+    { d: "M6 90V6H38C51 6 58 13 58 21C58 27 55 31 50 34", width: 11 },
+    { d: "M55 41H73C86 41 93.5 50 93.5 60C93.5 71 86 79.5 73 79.5H66", width: 11 },
+    { d: "M-2 90L39 47L66 72", width: 9 }
+  ];
+  var MARK_WAVE = "M14 85C23 75 32 70 42 70C54 70 61 78 70 78.5L80 78L80 85Z";
+  var MARK_SUN_GOLD = "#c89b5b";
+
+  function mark(sizeClass) {
+    var svgNs = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(svgNs, "svg");
+    svg.setAttribute("viewBox", MARK_VIEW_BOX);
+    svg.setAttribute("class", "bq-mark " + sizeClass);
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    MARK_STROKES.forEach(function (stroke) {
+      svg.appendChild(svgShape("path", { d: stroke.d, fill: "none", stroke: "currentColor",
+        "stroke-width": stroke.width }));
+    });
+    svg.appendChild(svgShape("path", { d: MARK_WAVE, fill: "currentColor" }));
+    svg.appendChild(svgShape("circle", { cx: 86, cy: 13, r: 12, fill: MARK_SUN_GOLD }));
+    return svg;
+  }
+
+  function svgShape(tag, attributes) {
+    var shape = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    Object.keys(attributes).forEach(function (name) { shape.setAttribute(name, attributes[name]); });
+    return shape;
+  }
+
   // ---- Reading the assessment and the document ---------------------------------------------------------------
 
   function fetchJson(path) {
@@ -192,7 +225,8 @@
   function scoreCard(assessment, refresh) {
     var score = assessment.score;
     var head = element("div", "bq-score-head");
-    append(head, [element("h3", "bq-heading", "API maturity"), refreshButton(refresh)]);
+    var title = append(element("h3", "bq-heading"), [mark(""), document.createTextNode("API maturity")]);
+    append(head, [title, refreshButton(refresh)]);
     var text = element("div", "bq-score-text");
     append(text, [
       element("p", "bq-grade-word bq-grade-" + (score.grade || "none"), gradeWord(score.grade)),
@@ -528,7 +562,9 @@
     var bar = element("header", "bq-topbar");
     var title = element("div", "");
     var documentInfo = problemOf(model.assessment) ? null : model.assessment.data.document;
-    append(title, [element("h1", "bq-brand", "API maturity"),
+    var brand = append(element("h1", "bq-brand"), [mark("bq-mark-large"), element("span", "bq-wordmark", "Brekquater"),
+      element("span", "bq-brand-divider"), element("span", "", "API maturity")]);
+    append(title, [brand,
       documentInfo ? element("p", "bq-muted bq-small", documentInfo.title + " " + documentInfo.version) : null]);
     return append(bar, [title, themeButton()]);
   }
