@@ -93,6 +93,33 @@ class AssessmentEndpointTest {
     }
 
     @Test
+    void servesTheAssessedDocumentForTheDashboard() throws Exception {
+        MockMvc mvc = endpointWith(AccessGuard.everyone(), request -> Optional.of(OpenApiDocument.of(ORDERS_API)));
+
+        mvc.perform(get("/brekquater/api/openapi"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(header().string("Cache-Control", "no-store"))
+                .andExpect(jsonPath("$.info.title").value("Orders API"));
+    }
+
+    @Test
+    void answersNotFoundWhenThereIsNoDocumentToServe() throws Exception {
+        MockMvc mvc = endpointWith(AccessGuard.everyone(), request -> Optional.empty());
+
+        mvc.perform(get("/brekquater/api/openapi"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("{\"title\":\"Not Found\",\"status\":404}"));
+    }
+
+    @Test
+    void guardsTheDocumentLikeTheAssessment() throws Exception {
+        MockMvc mvc = endpointWith(() -> false, request -> Optional.of(OpenApiDocument.of(ORDERS_API)));
+
+        mvc.perform(get("/brekquater/api/openapi")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void servesUnderTheConfiguredBasePath() throws Exception {
         MockMvc mvc = MockMvcBuilders.standaloneSetup(endpoint(AccessGuard.everyone(), request -> Optional.empty()))
                 .addPlaceholderValue(BASE_PATH, "/internal/api-quality")
