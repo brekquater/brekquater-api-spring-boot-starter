@@ -3,6 +3,7 @@
 
 package com.brekquater.api.rules.openapi;
 
+import com.brekquater.api.rules.ApiMediaType;
 import com.brekquater.api.rules.ApiOperation;
 import com.brekquater.api.rules.ApiParameter;
 import com.brekquater.api.rules.ApiResponse;
@@ -27,6 +28,8 @@ final class SwaggerOperation implements ApiOperation {
 
     private static final String PATHS = "paths";
     private static final String SECURITY = "security";
+    private static final String REQUEST_BODY = "requestBody";
+    private static final String CONTENT = "content";
     private static final String IGNORE_EXTENSION = "x-brekquater-ignore";
     private static final String PUBLIC_EXTENSION = "x-brekquater-public";
 
@@ -88,6 +91,13 @@ final class SwaggerOperation implements ApiOperation {
     @Override
     public boolean hasRequestBody() {
         return operation.getRequestBody() != null;
+    }
+
+    @Override
+    public List<ApiMediaType> requestContent() {
+        return Optional.ofNullable(operation.getRequestBody())
+                .map(body -> MediaTypes.of(body.getContent(), pointer().append(REQUEST_BODY).append(CONTENT)))
+                .orElse(List.of());
     }
 
     @Override

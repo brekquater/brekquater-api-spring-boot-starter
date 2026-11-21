@@ -28,5 +28,15 @@ public interface OpenApiContext {
     /** Returns the names of the schemes defined under {@code components.securitySchemes}. */
     Set<String> securitySchemeNames();
 
+    /** Returns every flow of every OAuth 2.0 security scheme, ordered by scheme name. */
+    List<ApiOAuthFlow> oauthFlows();
+
+    /**
+     * Returns every schema the document defines: the named schemas under {@code components}, the schemas of
+     * parameters, request bodies and responses, and every schema nested in them. A {@code $ref} is listed but not
+     * followed, because the schema it names is listed on its own.
+     */
+    List<ApiSchemaNode> schemas();
+
     DocumentSummary document();
 }

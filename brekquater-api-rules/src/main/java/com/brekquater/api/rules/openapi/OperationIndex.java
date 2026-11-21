@@ -27,11 +27,14 @@ final class OperationIndex {
 
     static List<ApiOperation> of(OpenAPI openApi) {
         Components components = Components.of(openApi);
-        return sortedPaths(openApi)
-                .entrySet().stream()
-                .flatMap(path -> sourcesOf(path.getKey(), path.getValue()))
+        return sources(openApi)
                 .map(source -> (ApiOperation) new SwaggerOperation(source, components))
                 .toList();
+    }
+
+    /** Returns where every operation is, ordered by path and then by {@link HttpMethod} order. */
+    static Stream<OperationSource> sources(OpenAPI openApi) {
+        return sortedPaths(openApi).entrySet().stream().flatMap(path -> sourcesOf(path.getKey(), path.getValue()));
     }
 
     static TreeMap<String, PathItem> sortedPaths(OpenAPI openApi) {

@@ -28,6 +28,9 @@ public interface ApiOperation {
 
     boolean hasRequestBody();
 
+    /** Returns the media types the request body can be sent as, ordered by name; empty when there is no body. */
+    List<ApiMediaType> requestContent();
+
     /** Returns the documented responses, ordered by status code. */
     List<ApiResponse> responses();
 

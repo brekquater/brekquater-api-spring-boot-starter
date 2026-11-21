@@ -3,10 +3,8 @@
 
 package com.brekquater.api.rules.openapi;
 
-import com.brekquater.api.rules.ApiMediaType;
 import com.brekquater.api.rules.ApiResponse;
 import com.brekquater.api.rules.JsonPointer;
-import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import java.util.List;
 import java.util.Map;
@@ -37,21 +35,6 @@ final class Responses {
     private static ApiResponse response(
             String code, io.swagger.v3.oas.models.responses.ApiResponse response, JsonPointer responses) {
         JsonPointer pointer = responses.append(code);
-        return new ApiResponse(code, pointer, content(response, pointer.append(CONTENT)));
-    }
-
-    private static List<ApiMediaType> content(
-            io.swagger.v3.oas.models.responses.ApiResponse response, JsonPointer content) {
-        Map<String, MediaType> mediaTypes = Optional.<Map<String, MediaType>>ofNullable(response.getContent())
-                .orElse(Map.of());
-        return new TreeMap<>(mediaTypes)
-                .entrySet().stream()
-                .map(entry -> new ApiMediaType(
-                        entry.getKey(),
-                        content.append(entry.getKey()),
-                        Optional.ofNullable(entry.getValue())
-                                .map(MediaType::getSchema)
-                                .map(SchemaFacts::of)))
-                .toList();
+        return new ApiResponse(code, pointer, MediaTypes.of(response.getContent(), pointer.append(CONTENT)));
     }
 }
