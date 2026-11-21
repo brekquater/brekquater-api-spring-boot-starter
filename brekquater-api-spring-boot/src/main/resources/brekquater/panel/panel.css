@@ -149,6 +149,22 @@ html[data-theme="dark"] .bq-page .bq-panel {
   }
 }
 
+/*
+ * Inside Swagger UI the panel takes Swagger UI's own page and border colours, so the column and the operations read
+ * as one page. The brand ivory and charcoal stay on the dashboard page.
+ */
+.bq-swagger-wrapper .bq-panel {
+  --bq-surface: #fafafa;
+  --bq-subtle: #fafafa;
+}
+
+html.dark-mode .bq-swagger-wrapper .bq-panel {
+  --bq-surface: #1c2022;
+  --bq-subtle: #1c2022;
+  --bq-border: #3a4246;
+  --bq-ring-track: #3a4246;
+}
+
 /* Standalone page */
 
 .bq-page {
