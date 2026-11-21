@@ -7,7 +7,7 @@ Add one dependency, run your app, open Swagger UI, and see what can be improved 
 
 It warns; it does not block. (Unless you ask it to: see [strict mode](#strict-mode).)
 
-![The Brekquater panel: a score with its grade, category scores, build evidence and findings grouped by severity](docs/assets/panel.png)
+![The Brekquater dashboard: operations with their finding counts, the findings with filters, and a score card with category scores and build evidence](docs/assets/panel.png)
 
 <!-- A short GIF of the Swagger UI flow (open the panel, expand a finding, follow the fix) will replace this screenshot. -->
 
@@ -47,8 +47,8 @@ cd brekquater-api-spring-boot-starter
 
 ## What you get
 
-- **A panel inside Swagger UI** with the score, a grade, a security rating, a score per category, and the findings grouped by severity. Each finding says where the problem is, how to fix it in Spring, and links to its rule page.
-- **The same panel on a page of its own** at `/brekquater/api`, and the assessment as JSON at `/brekquater/api/assessment`.
+- **A panel inside Swagger UI** with the score, a grade, a security rating, a score per category, and the findings, most severe first, with filters and search. Each finding says where the problem is, how to fix it in Spring, and links to its rule page.
+- **A dashboard page** at `/brekquater/api` that lists your operations with their findings, with a light and dark theme switch, and the assessment as JSON at `/brekquater/api/assessment`.
 - **25 rules** across design, documentation, security, errors, naming and testing. See the [rule catalogue](docs/rules/index.md).
 - **Build evidence.** If your build writes JaCoCo, Surefire or Failsafe reports, or an OSV-Scanner or OWASP Dependency-Check report, the starter reads them and checks coverage, failing tests and known vulnerabilities too. It reads files only; it never calls a vulnerability database. See [build reports](docs/reports.md).
 
