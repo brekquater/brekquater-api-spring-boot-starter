@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,8 @@ class HandEditedDocument implements OpenApiCustomizer {
 
         // BQ-API-001: an operation without an operationId.
         orderItem.setOperationId(null);
+        // BQ-SEC-006: a production server reached over plain http.
+        openApi.addServersItem(new Server().url("http://api.example.com").description("Production"));
         // BQ-API-003: a response body without a schema.
         search.getResponses().addApiResponse("200", new ApiResponse()
                 .description("Matching orders")

@@ -27,7 +27,7 @@ Run your application with the `dev` profile, open `http://localhost:8080/swagger
 
 ## Where to go next
 
-- [Rule catalogue](rules/index.mdx): what each of the 34 rules checks, and how to fix or suppress it.
+- [Rule catalogue](rules/index.mdx): what each of the 44 rules checks, and how to fix or suppress it.
 - [Configuration](configuration.md): exposure modes, rules, scoring, report locations and strict mode.
 - [Build reports](reports.md): add coverage, test results and known vulnerabilities to the assessment.
 

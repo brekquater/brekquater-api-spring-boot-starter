@@ -28,6 +28,12 @@ public interface OpenApiContext {
     /** Returns the names of the schemes defined under {@code components.securitySchemes}. */
     Set<String> securitySchemeNames();
 
+    /** Returns the schemes defined under {@code components.securitySchemes}, ordered by name. */
+    List<ApiSecurityScheme> securitySchemes();
+
+    /** Returns the document-wide {@code servers} entries, in document order. */
+    List<ApiServer> servers();
+
     /** Returns every flow of every OAuth 2.0 security scheme, ordered by scheme name. */
     List<ApiOAuthFlow> oauthFlows();
 

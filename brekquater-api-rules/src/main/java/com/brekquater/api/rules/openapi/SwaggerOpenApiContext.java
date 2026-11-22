@@ -9,16 +9,16 @@ import com.brekquater.api.rules.ApiOperation;
 import com.brekquater.api.rules.ApiPath;
 import com.brekquater.api.rules.ApiSchemaNode;
 import com.brekquater.api.rules.ApiSecurityRequirement;
+import com.brekquater.api.rules.ApiSecurityScheme;
+import com.brekquater.api.rules.ApiServer;
 import com.brekquater.api.rules.DocumentSummary;
 import com.brekquater.api.rules.JsonPointer;
 import com.brekquater.api.rules.OpenApiContext;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -41,7 +41,8 @@ public final class SwaggerOpenApiContext implements OpenApiContext {
     private final List<ApiPath> paths;
     private final ApiInfo info;
     private final List<ApiSecurityRequirement> rootSecurity;
-    private final Set<String> securitySchemeNames;
+    private final List<ApiSecurityScheme> securitySchemes;
+    private final List<ApiServer> servers;
     private final List<ApiOAuthFlow> oauthFlows;
     private final List<ApiSchemaNode> schemas;
     private final DocumentSummary document;
@@ -54,8 +55,9 @@ public final class SwaggerOpenApiContext implements OpenApiContext {
         this.info = infoOf(openApi);
         this.rootSecurity = SecurityRequirements.of(
                 Optional.ofNullable(openApi.getSecurity()).orElse(List.of()), SECURITY);
-        this.securitySchemeNames = securitySchemeNamesOf(openApi);
-        this.oauthFlows = OAuthFlows.of(openApi);
+        this.securitySchemes = SecuritySchemes.of(openApi);
+        this.servers = Servers.of(openApi);
+        this.oauthFlows = OAuthFlowIndex.of(openApi);
         this.schemas = SchemaIndex.of(openApi);
         this.document = new DocumentSummary(
                 Optional.ofNullable(openApi.getOpenapi()).orElse(NOT_STATED),
@@ -86,7 +88,19 @@ public final class SwaggerOpenApiContext implements OpenApiContext {
 
     @Override
     public Set<String> securitySchemeNames() {
-        return securitySchemeNames;
+        Set<String> names = new TreeSet<>();
+        securitySchemes.forEach(scheme -> names.add(scheme.name()));
+        return Collections.unmodifiableSet(names);
+    }
+
+    @Override
+    public List<ApiSecurityScheme> securitySchemes() {
+        return securitySchemes;
+    }
+
+    @Override
+    public List<ApiServer> servers() {
+        return servers;
     }
 
     @Override
@@ -117,18 +131,5 @@ public final class SwaggerOpenApiContext implements OpenApiContext {
     private static boolean reachable(Contact contact) {
         return Stream.of(contact.getName(), contact.getUrl(), contact.getEmail())
                 .anyMatch(value -> value != null && !value.isBlank());
-    }
-
-    private static Set<String> securitySchemeNamesOf(OpenAPI openApi) {
-        Map<String, SecurityScheme> schemes = Optional.ofNullable(openApi.getComponents())
-                .map(io.swagger.v3.oas.models.Components::getSecuritySchemes)
-                .orElse(Map.of());
-        Set<String> names = new TreeSet<>();
-        schemes.forEach((name, scheme) -> {
-            if (scheme != null) {
-                names.add(name);
-            }
-        });
-        return Collections.unmodifiableSet(names);
     }
 }

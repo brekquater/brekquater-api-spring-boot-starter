@@ -14,6 +14,10 @@ import com.brekquater.api.rules.DocumentSummary;
 import com.brekquater.api.rules.HttpMethod;
 import com.brekquater.api.rules.OpenApiContext;
 import com.brekquater.api.rules.ApiParameter;
+import com.brekquater.api.rules.ApiSchemaNode;
+import com.brekquater.api.rules.ApiSecurityRequirement;
+import com.brekquater.api.rules.ApiSecurityScheme;
+import com.brekquater.api.rules.ApiServer;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -23,6 +27,9 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class SwaggerOpenApiContextTest {
@@ -320,6 +327,82 @@ class SwaggerOpenApiContextTest {
                 .containsExactly(
                         tuple("authorizationCode", "/components/securitySchemes/login/flows/authorizationCode"),
                         tuple("password", "/components/securitySchemes/login/flows/password"));
+    }
+
+    @Test
+    void readsSecuritySchemesTheirFlowsAndTheScopesEachRequirementAsksFor() {
+        OpenApiContext context = contextOf("""
+                openapi: 3.1.0
+                info: {title: Orders API, version: "1.0"}
+                security: [{login: [orders:read]}, {key: []}]
+                paths: {}
+                components:
+                  securitySchemes:
+                    key: {type: apiKey, in: query, name: api_key}
+                    login:
+                      type: oauth2
+                      flows:
+                        clientCredentials: {tokenUrl: 'https://sso.example.com/token', refreshUrl: 'https://sso.example.com/refresh', scopes: {orders:read: Read orders}}
+                    basic: {type: http, scheme: Basic}
+                """);
+
+        assertThat(context.securitySchemes())
+                .extracting(ApiSecurityScheme::name, ApiSecurityScheme::type, ApiSecurityScheme::httpScheme, ApiSecurityScheme::apiKeyLocation)
+                .containsExactly(
+                        tuple("basic", "http", Optional.of("Basic"), Optional.empty()),
+                        tuple("key", "apiKey", Optional.empty(), Optional.of("query")),
+                        tuple("login", "oauth2", Optional.empty(), Optional.empty()));
+        assertThat(context.oauthFlows()).singleElement().satisfies(flow -> {
+            assertThat(flow.scheme()).isEqualTo("login");
+            assertThat(flow.scopes()).containsExactly("orders:read");
+            assertThat(flow.urls()).containsExactly("https://sso.example.com/token", "https://sso.example.com/refresh");
+        });
+        assertThat(context.rootSecurity())
+                .extracting(ApiSecurityRequirement::scopes)
+                .containsExactly(Map.of("login", List.of("orders:read")), Map.of("key", List.of()));
+    }
+
+    @Test
+    void readsTheServersInDocumentOrder() {
+        OpenApiContext context = contextOf("""
+                openapi: 3.1.0
+                info: {title: Orders API, version: "1.0"}
+                servers:
+                  - {url: 'http://localhost:8080', description: Generated server url}
+                  - {url: 'https://api.example.com'}
+                paths: {}
+                """);
+
+        assertThat(context.servers())
+                .extracting(ApiServer::url, ApiServer::generatedBySpringdoc, server -> server.pointer().value())
+                .containsExactly(
+                        tuple("http://localhost:8080", true, "/servers/0"),
+                        tuple("https://api.example.com", false, "/servers/1"));
+    }
+
+    @Test
+    void recordsWhereASchemaRefersAndWhetherItIsWriteOnly() {
+        OpenApiContext context = contextOf("""
+                openapi: 3.1.0
+                info: {title: Orders API, version: "1.0"}
+                paths: {}
+                components:
+                  schemas:
+                    Account:
+                      type: object
+                      properties:
+                        owner: {$ref: '#/components/schemas/Person'}
+                        password: {type: string, writeOnly: true}
+                    Person: {type: object}
+                """);
+
+        assertThat(context.schemas())
+                .extracting(schema -> schema.pointer().value(), ApiSchemaNode::referencedSchemaName, ApiSchemaNode::writeOnly)
+                .containsExactly(
+                        tuple("/components/schemas/Account", Optional.empty(), false),
+                        tuple("/components/schemas/Account/properties/owner", Optional.of("Person"), false),
+                        tuple("/components/schemas/Account/properties/password", Optional.empty(), true),
+                        tuple("/components/schemas/Person", Optional.empty(), false));
     }
 
     private static OpenApiContext contextOf(String yaml) {

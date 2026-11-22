@@ -13,14 +13,23 @@ import java.util.Optional;
  *
  * @param pointer the location of the schema in the document
  * @param pattern the regular expression a string must match, when the schema declares one
+ * @param reference the {@code $ref} of the schema, when it refers to another one
+ * @param writeOnly whether the schema is marked {@code writeOnly}, so it is sent in requests but never returned
  */
-public record ApiSchemaNode(JsonPointer pointer, Optional<String> pattern) {
+public record ApiSchemaNode(JsonPointer pointer, Optional<String> pattern, Optional<String> reference, boolean writeOnly) {
 
     private static final String PROPERTIES = "properties";
+    private static final String NAMED_SCHEMA = "#/components/schemas/";
 
     public ApiSchemaNode {
         Objects.requireNonNull(pointer, "pointer");
         Objects.requireNonNull(pattern, "pattern");
+        Objects.requireNonNull(reference, "reference");
+    }
+
+    /** Returns the name of the schema under {@code components.schemas} that this schema refers to, if any. */
+    public Optional<String> referencedSchemaName() {
+        return reference.filter(ref -> ref.startsWith(NAMED_SCHEMA)).map(ref -> ref.substring(NAMED_SCHEMA.length()));
     }
 
     /** Returns the property name when this schema is a property of an object, which is when it sits under {@code properties}. */
