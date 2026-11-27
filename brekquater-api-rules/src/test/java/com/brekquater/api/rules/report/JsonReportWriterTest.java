@@ -85,7 +85,9 @@ class JsonReportWriterTest {
                     {"type": "TEST_RESULTS", "status": "MISSING", "hint": "Run the tests, for example ./mvnw verify, \
                 to write Surefire reports. See https://starter.brekquater.com/api/reports"},
                     {"type": "VULNERABILITIES", "status": "MISSING", "hint": "Run OSV-Scanner or OWASP \
-                Dependency-Check with JSON output. See https://starter.brekquater.com/api/reports"}
+                Dependency-Check with JSON output. See https://starter.brekquater.com/api/reports"},
+                    {"type": "BASELINE", "status": "MISSING", "hint": "Commit the OpenAPI document of your last \
+                release as openapi-baseline.json. See https://starter.brekquater.com/api/reports"}
                   ],
                   "score": {"overall": 50, "grade": "D", "assessedCategories": 2, "totalCategories": 8},
                   "securityRating": null,

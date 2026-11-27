@@ -16,7 +16,8 @@ final class ReportHints {
     private static final Map<RuleInput, String> MISSING = Map.of(
             RuleInput.COVERAGE, "Run the build with the jacoco-maven-plugin report goal, for example ./mvnw verify." + GUIDE,
             RuleInput.TEST_RESULTS, "Run the tests, for example ./mvnw verify, to write Surefire reports." + GUIDE,
-            RuleInput.VULNERABILITIES, "Run OSV-Scanner or OWASP Dependency-Check with JSON output." + GUIDE);
+            RuleInput.VULNERABILITIES, "Run OSV-Scanner or OWASP Dependency-Check with JSON output." + GUIDE,
+            RuleInput.BASELINE, "Commit the OpenAPI document of your last release as openapi-baseline.json." + GUIDE);
 
     private ReportHints() {}
 

@@ -40,7 +40,7 @@
     { ruleId: "BQ-VUL-003", label: "Medium", chip: "bq-minor" },
     { ruleId: "BQ-VUL-004", label: "Low", chip: "bq-info" }
   ];
-  var REPORT_INPUTS = ["COVERAGE", "TEST_RESULTS", "VULNERABILITIES"];
+  var REPORT_INPUTS = ["COVERAGE", "TEST_RESULTS", "VULNERABILITIES", "BASELINE"];
   var EVIDENCE_SOURCES = { COVERAGE: "Coverage report", TEST_RESULTS: "Test", VULNERABILITIES: "Dependency" };
   var NOT_ASSESSED_REASONS = {
     MISSING_INPUT: "Input not found",
@@ -496,9 +496,14 @@
     return details;
   }
 
+  // Findings about changes since the baseline point into the document as well, like those about the document.
+  function pointsIntoDocument(evidence) {
+    return evidence.source === "OPENAPI" || evidence.source === "BASELINE";
+  }
+
   // Turns "/paths/~1orders~1{id}/get/responses/404" into "GET /orders/{id} · responses 404".
   function describe(evidence) {
-    if (evidence.source !== "OPENAPI") {
+    if (!pointsIntoDocument(evidence)) {
       return EVIDENCE_SOURCES[evidence.source] || evidence.source;
     }
     var tokens = evidence.location.split("/").slice(1).map(function (token) {
@@ -613,7 +618,7 @@
   function findingsAt(findings, key) {
     return findings.filter(function (finding) {
       var location = finding.evidence.location;
-      return finding.evidence.source === "OPENAPI" && (location === key || location.indexOf(key + "/") === 0);
+      return pointsIntoDocument(finding.evidence) && (location === key || location.indexOf(key + "/") === 0);
     });
   }
 

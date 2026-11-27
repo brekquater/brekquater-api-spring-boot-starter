@@ -59,12 +59,18 @@ public record AssessmentContext(
         return reports.vulnerabilities().content();
     }
 
+    /** Returns how the document changed since the baseline, when both documents were read. */
+    public Optional<ApiChanges> changes() {
+        return reports.baseline().content();
+    }
+
     public boolean provides(RuleInput input) {
         return switch (input) {
             case OPENAPI -> openApi.isPresent();
             case COVERAGE -> coverage().isPresent();
             case TEST_RESULTS -> testResults().isPresent();
             case VULNERABILITIES -> vulnerabilities().isPresent();
+            case BASELINE -> changes().isPresent();
         };
     }
 }

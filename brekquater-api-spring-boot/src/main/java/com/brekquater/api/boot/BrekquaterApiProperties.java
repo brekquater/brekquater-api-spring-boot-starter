@@ -146,13 +146,16 @@ record BrekquaterApiProperties(
      *     Defaults to target/surefire-reports and target/failsafe-reports.
      * @param vulnerabilities OSV-Scanner or OWASP Dependency-Check JSON report; the format is recognised from the
      *     content. Defaults to target/osv-scanner.json, then target/dependency-check-report.json.
+     * @param baseline OpenAPI document of the last release, JSON or YAML, committed with the application. The
+     *     BQ-EVO rules compare the current document with it. Defaults to openapi-baseline.json.
      */
-    record Reports(String coverage, List<String> testResults, String vulnerabilities) {
+    record Reports(String coverage, List<String> testResults, String vulnerabilities, String baseline) {
 
         Reports {
             coverage = coverage == null ? "" : coverage;
             testResults = testResults == null ? List.of() : List.copyOf(testResults);
             vulnerabilities = vulnerabilities == null ? "" : vulnerabilities;
+            baseline = baseline == null ? "" : baseline;
         }
     }
 

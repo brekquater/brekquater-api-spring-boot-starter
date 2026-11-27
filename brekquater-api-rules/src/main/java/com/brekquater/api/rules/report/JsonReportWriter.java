@@ -82,6 +82,7 @@ final class JsonReportWriter implements ReportWriter {
         inputs.add(input(RuleInput.COVERAGE, reports.coverage()));
         inputs.add(input(RuleInput.TEST_RESULTS, reports.testResults()));
         inputs.add(input(RuleInput.VULNERABILITIES, reports.vulnerabilities()));
+        inputs.add(input(RuleInput.BASELINE, reports.baseline()));
         return inputs;
     }
 

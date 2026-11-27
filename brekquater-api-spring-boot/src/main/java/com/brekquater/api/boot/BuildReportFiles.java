@@ -13,6 +13,7 @@ import com.brekquater.api.rules.evidence.JacocoXmlReport;
 import com.brekquater.api.rules.evidence.JunitXmlReport;
 import com.brekquater.api.rules.evidence.UnreadableReportException;
 import com.brekquater.api.rules.evidence.VulnerabilityReport;
+import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
@@ -50,7 +51,8 @@ final class BuildReportFiles {
 
     /** Returns a value that changes whenever a report appears, disappears or is rewritten; it only reads metadata. */
     String fingerprint() {
-        return Stream.of(locations.coverage().stream(), testReports().stream(), vulnerabilityReport().stream())
+        return Stream.of(locations.coverage().stream(), testReports().stream(), vulnerabilityReport().stream(),
+                        locations.baseline().stream())
                 .flatMap(Function.identity())
                 .map(StampedFile::of)
                 .flatMap(Optional::stream)
@@ -60,6 +62,14 @@ final class BuildReportFiles {
 
     BuildReports read() {
         return new BuildReports(coverage(), testResults(), vulnerabilities());
+    }
+
+    /** Returns the OpenAPI document of the last release, which the assessment compares with the current one. */
+    BuildReport<OpenAPI> baseline() {
+        return locations.baseline()
+                .flatMap(StampedFile::of)
+                .map(file -> readOne(file, BaselineDocumentReader::read))
+                .orElse(BuildReport.missing());
     }
 
     private BuildReport<Coverage> coverage() {

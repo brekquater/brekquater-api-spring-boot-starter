@@ -3,9 +3,14 @@
 
 package com.brekquater.api.boot;
 
+import com.brekquater.api.rules.ApiChanges;
 import com.brekquater.api.rules.AssessmentContext;
+import com.brekquater.api.rules.BuildReport;
 import com.brekquater.api.rules.CoverageTargets;
+import com.brekquater.api.rules.ReportStatus;
+import com.brekquater.api.rules.openapi.SwaggerApiChanges;
 import com.brekquater.api.rules.openapi.SwaggerOpenApiContext;
+import io.swagger.v3.oas.models.OpenAPI;
 
 /** Gathers what one assessment reads: the OpenAPI document, the build reports and the coverage targets. */
 final class AssessmentInputs {
@@ -38,8 +43,20 @@ final class AssessmentInputs {
     AssessmentContext contextFor(OpenApiDocument document) {
         AssessmentContext context = contextWithoutDocument();
         return OpenApiDocumentParser.parse(document)
-                .map(openApi -> context.withOpenApi(new SwaggerOpenApiContext(openApi)))
+                .map(openApi -> context.withOpenApi(new SwaggerOpenApiContext(openApi))
+                        .withReports(context.reports().withBaseline(changesSince(openApi))))
                 .orElse(context);
+    }
+
+    // The comparison needs the current document, so it is made here rather than with the other reports.
+    private BuildReport<ApiChanges> changesSince(OpenAPI current) {
+        BuildReport<OpenAPI> baseline = reports.baseline();
+        if (baseline.status() == ReportStatus.UNREADABLE) {
+            return BuildReport.unreadable(baseline.file().orElseThrow());
+        }
+        return baseline.content()
+                .map(previous -> BuildReport.read(SwaggerApiChanges.between(previous, current), baseline.file().orElseThrow()))
+                .orElse(BuildReport.missing());
     }
 
     AssessmentContext contextWithoutDocument() {
