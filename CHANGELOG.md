@@ -22,6 +22,12 @@ All notable changes to this project are recorded here. The format follows [Keep 
   - naming: no two properties of an object differ only in case (`BQ-NAM-006`);
   - documentation: examples and defaults of schemas (`BQ-DOC-009`), and examples of parameters and JSON bodies (`BQ-DOC-010`), are valid against their schema.
 - A new dependency, the [networknt JSON Schema validator](https://github.com/networknt/json-schema-validator) 3.0.9 (Apache-2.0), validates those examples. It brings `com.ethlo.time:itu` and SLF4J; its YAML reader is excluded. It never fetches a `$ref`.
+- 9 breaking-change rules (`BQ-EVO-001` to `BQ-EVO-009`), which compare the OpenAPI document with the one of your last release, committed as `openapi-baseline.json` (JSON or YAML; set another path with `brekquater.api.reports.baseline`):
+  - no operation removed without being deprecated first (`BQ-EVO-001`); no parameter (`BQ-EVO-002`), request body or request property (`BQ-EVO-003`) became required; no required response property removed (`BQ-EVO-004`); no request enum value removed (`BQ-EVO-005`); no success status removed (`BQ-EVO-006`); no incompatible type change (`BQ-EVO-007`);
+  - a breaking change raises the major version (`BQ-EVO-008`); an `x-sunset` does not move earlier (`BQ-EVO-009`).
+- A new input, `BASELINE`, in the assessment's `inputs` list, and the panel lists the baseline's age with the other reports.
+- Rules can read the changes since the baseline (`AssessmentContext.changes()`, `ApiChanges`, `ApiChange`).
+- `UnreadableReportException(String)` is public, so report readers outside the rules module can say why a file was not used.
 - 7 versioning rules, checked against what springdoc 3 generates for Spring's own API versioning and for hand-written version prefixes:
   - `info.version` is `MAJOR.MINOR.PATCH` or a date (`BQ-DOC-011`);
   - the API uses one versioning mechanism, a path segment, a header or a query parameter (`BQ-DES-015`); path versions name the major version only (`BQ-NAM-007`) and sit at the same position (`BQ-DES-016`); when several majors coexist, the older ones are deprecated (`BQ-DES-017`, INFO);

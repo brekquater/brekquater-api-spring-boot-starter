@@ -5,9 +5,11 @@ package com.brekquater.api.boot;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.brekquater.api.rules.BuildReport;
 import com.brekquater.api.rules.BuildReports;
 import com.brekquater.api.rules.ReportFile;
 import com.brekquater.api.rules.ReportStatus;
+import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -15,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -117,7 +120,8 @@ class BuildReportFilesTest {
         ReportLocations configured = ReportLocations.of(new BrekquaterApiProperties.Reports(
                 project.resolve("build/coverage.xml").toString(),
                 List.of(project.resolve("build/results.xml").toString()),
-                project.resolve("build/scan.json").toString()));
+                project.resolve("build/scan.json").toString(),
+                project.resolve("build/baseline.yaml").toString()));
 
         BuildReports reports = new BuildReportFiles(configured).read();
 
@@ -139,6 +143,42 @@ class BuildReportFilesTest {
     }
 
     @Test
+    void readsTheBaselineDocumentAsJsonFromItsDefaultLocation() throws IOException {
+        write("openapi-baseline.json", """
+                {"openapi": "3.0.1", "info": {"title": "Orders API", "version": "1.0.0"}, "paths": {}}
+                """);
+
+        BuildReport<OpenAPI> baseline = filesAt(defaults()).baseline();
+
+        assertThat(baseline.content().map(openApi -> openApi.getInfo().getVersion())).contains("1.0.0");
+        assertThat(baseline.file().map(ReportFile::name)).contains("openapi-baseline.json");
+    }
+
+    @Test
+    void readsAConfiguredBaselineWrittenInYaml() throws IOException {
+        write("build/baseline.yaml", """
+                openapi: 3.1.0
+                info: {title: Orders API, version: 2.0.0}
+                paths:
+                  /orders:
+                    get: {responses: {'200': {description: OK}}}
+                """);
+        ReportLocations configured = ReportLocations.of(new BrekquaterApiProperties.Reports(
+                null, null, null, project.resolve("build/baseline.yaml").toString()));
+
+        BuildReport<OpenAPI> baseline = new BuildReportFiles(configured).baseline();
+
+        assertThat(baseline.content().map(openApi -> openApi.getPaths().keySet())).contains(Set.of("/orders"));
+    }
+
+    @Test
+    void marksABaselineThatIsNotAnOpenApiDocumentUnreadable() throws IOException {
+        write("openapi-baseline.json", "{\"orders\": []}");
+
+        assertThat(filesAt(defaults()).baseline().status()).isEqualTo(ReportStatus.UNREADABLE);
+    }
+
+    @Test
     void readsNothingWhenToldToLookNowhere() throws IOException {
         write("target/site/jacoco/jacoco.xml", JACOCO);
 
@@ -146,11 +186,12 @@ class BuildReportFilesTest {
     }
 
     private ReportLocations defaults() {
-        ReportLocations maven = ReportLocations.of(new BrekquaterApiProperties.Reports(null, null, null));
+        ReportLocations maven = ReportLocations.of(new BrekquaterApiProperties.Reports(null, null, null, null));
         return new ReportLocations(
                 maven.coverage().map(project::resolve),
                 maven.testResults().stream().map(project::resolve).toList(),
-                maven.vulnerabilities().stream().map(project::resolve).toList());
+                maven.vulnerabilities().stream().map(project::resolve).toList(),
+                maven.baseline().map(project::resolve));
     }
 
     private static BuildReportFiles filesAt(ReportLocations locations) {

@@ -28,6 +28,7 @@ A value the starter cannot use stops the application at startup. The startup rep
 | `brekquater.api.reports.coverage` | `target/site/jacoco/jacoco.xml` | JaCoCo XML report. | Low. Only the file name and its age appear in the assessment, never the directory. |
 | `brekquater.api.reports.test-results` | `target/surefire-reports`, `target/failsafe-reports` | Surefire or Failsafe reports: files, or directories whose `TEST-*.xml` files are all read. | Low. Failed tests are shown by class and method name. |
 | `brekquater.api.reports.vulnerabilities` | `target/osv-scanner.json`, then `target/dependency-check-report.json` | OSV-Scanner or OWASP Dependency-Check JSON report. The scanner is recognised from the content. | **Medium.** The assessment then lists the vulnerable dependencies of your application. |
+| `brekquater.api.reports.baseline` | `openapi-baseline.json` | OpenAPI document of your last release, JSON or YAML, committed with your code. The BQ-EVO rules compare the current document with it. | Low. Only its file name and age appear in the assessment. |
 | `brekquater.api.thresholds.line-coverage` | `80` | Line coverage, in whole percent, that `BQ-TST-001` expects. | None. |
 | `brekquater.api.thresholds.branch-coverage` | `70` | Branch coverage, in whole percent, that `BQ-TST-002` expects. | None. |
 | `brekquater.api.strict` | `false` | Whether blocker findings stop the application at startup. See [Strict mode](#strict-mode). | None. It makes the starter stricter, never more open. |

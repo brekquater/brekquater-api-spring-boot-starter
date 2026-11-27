@@ -364,14 +364,23 @@
     return input && input.status !== "READ" && input.hint ? element("p", "bq-note", input.hint) : null;
   }
 
+  // Build reports go stale with every code change; the baseline is meant to stay as it was at the last release.
   function reportAges(inputs) {
-    var read = REPORT_INPUTS.map(function (type) { return inputs[type]; })
-      .filter(function (input) { return input && input.file && input.modifiedAt; });
-    if (read.length === 0) {
-      return null;
+    var read = REPORT_INPUTS.map(function (type) { return inputs[type]; }).filter(dated);
+    var sentences = [];
+    if (read.length > 0) {
+      var text = read.map(function (input) { return input.file + " written " + age(input.modifiedAt); }).join(" · ");
+      sentences.push("Reports: " + text + ". Rebuild to refresh them.");
     }
-    var text = read.map(function (input) { return input.file + " written " + age(input.modifiedAt); }).join(" · ");
-    return element("p", "bq-muted bq-report-ages", "Reports: " + text + ". Rebuild to refresh them.");
+    if (dated(inputs.BASELINE)) {
+      sentences.push("Baseline: " + inputs.BASELINE.file + " from " + age(inputs.BASELINE.modifiedAt)
+        + ". Replace it when you release.");
+    }
+    return sentences.length > 0 ? element("p", "bq-muted bq-report-ages", sentences.join(" ")) : null;
+  }
+
+  function dated(input) {
+    return Boolean(input && input.file && input.modifiedAt);
   }
 
   function age(timestamp) {
@@ -496,9 +505,14 @@
     return details;
   }
 
+  // Findings about changes since the baseline point into the document as well, like those about the document.
+  function pointsIntoDocument(evidence) {
+    return evidence.source === "OPENAPI" || evidence.source === "BASELINE";
+  }
+
   // Turns "/paths/~1orders~1{id}/get/responses/404" into "GET /orders/{id} · responses 404".
   function describe(evidence) {
-    if (evidence.source !== "OPENAPI") {
+    if (!pointsIntoDocument(evidence)) {
       return EVIDENCE_SOURCES[evidence.source] || evidence.source;
     }
     var tokens = evidence.location.split("/").slice(1).map(function (token) {
@@ -613,7 +627,7 @@
   function findingsAt(findings, key) {
     return findings.filter(function (finding) {
       var location = finding.evidence.location;
-      return finding.evidence.source === "OPENAPI" && (location === key || location.indexOf(key + "/") === 0);
+      return pointsIntoDocument(finding.evidence) && (location === key || location.indexOf(key + "/") === 0);
     });
   }
 

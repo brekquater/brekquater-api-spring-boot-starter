@@ -85,7 +85,9 @@ class JsonReportWriterTest {
                     {"type": "TEST_RESULTS", "status": "MISSING", "hint": "Run the tests, for example ./mvnw verify, \
                 to write Surefire reports. See https://starter.brekquater.com/api/reports"},
                     {"type": "VULNERABILITIES", "status": "MISSING", "hint": "Run OSV-Scanner or OWASP \
-                Dependency-Check with JSON output. See https://starter.brekquater.com/api/reports"}
+                Dependency-Check with JSON output. See https://starter.brekquater.com/api/reports"},
+                    {"type": "BASELINE", "status": "MISSING", "hint": "Commit the OpenAPI document of your last \
+                release as openapi-baseline.json. See https://starter.brekquater.com/api/reports"}
                   ],
                   "score": {"overall": 50, "grade": "D", "assessedCategories": 2, "totalCategories": 8},
                   "securityRating": null,
@@ -165,6 +167,14 @@ class JsonReportWriterTest {
         assertThat(report.get("categories").get(1)).isEqualTo(JSON.readTree("""
                 {"name": "DOCUMENTATION", "assessed": false, "score": null, "reason": "MISSING_INPUT"}
                 """));
+    }
+
+    @Test
+    void saysTheBaselineWaitsForTheDocumentRatherThanAskingForAFileThatMayExist() {
+        JsonNode report = JSON.readTree(write(AssessmentContext.empty()));
+
+        assertThat(report.get("inputs").get(4).get("hint").asString())
+                .startsWith("The baseline is compared once the application's OpenAPI document can be read.");
     }
 
     @Test

@@ -77,7 +77,7 @@ class BadApiTest {
         assertThat(inputs)
                 .filteredOn(input -> input.has("file"))
                 .extracting(input -> input.get("file").asString())
-                .containsExactly("jacoco.xml", "bad", "osv-scanner.json");
+                .containsExactly("jacoco.xml", "bad", "osv-scanner.json", "openapi-baseline.json");
     }
 
     @Test
