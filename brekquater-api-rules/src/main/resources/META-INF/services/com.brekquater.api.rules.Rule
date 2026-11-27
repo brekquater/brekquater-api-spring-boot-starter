@@ -42,3 +42,11 @@ com.brekquater.api.rules.catalogue.SecretIsNotReturned
 com.brekquater.api.rules.catalogue.SecurityRequirementNamesDefinedScheme
 com.brekquater.api.rules.catalogue.ServerUsesHttps
 com.brekquater.api.rules.catalogue.TestsPass
+com.brekquater.api.rules.catalogue.FormatFitsType
+com.brekquater.api.rules.catalogue.EnumValuesMatchType
+com.brekquater.api.rules.catalogue.EnumValuesAreUnique
+com.brekquater.api.rules.catalogue.DiscriminatorIsRequiredProperty
+com.brekquater.api.rules.catalogue.PropertyIsTyped
+com.brekquater.api.rules.catalogue.PropertyNamesDifferBeyondCase
+com.brekquater.api.rules.catalogue.SchemaExampleMatchesSchema
+com.brekquater.api.rules.catalogue.ContentExampleMatchesSchema
