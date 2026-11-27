@@ -31,6 +31,8 @@ class HandEditedDocument implements OpenApiCustomizer {
 
         // BQ-API-001: an operation without an operationId.
         orderItem.setOperationId(null);
+        // BQ-DOC-011: a version that is neither MAJOR.MINOR.PATCH nor a date.
+        openApi.getInfo().setVersion("2.1");
         // BQ-SEC-006: a production server reached over plain http.
         openApi.addServersItem(new Server().url("http://api.example.com").description("Production"));
         // BQ-API-003: a response body without a schema.

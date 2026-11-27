@@ -50,3 +50,10 @@ com.brekquater.api.rules.catalogue.PropertyIsTyped
 com.brekquater.api.rules.catalogue.PropertyNamesDifferBeyondCase
 com.brekquater.api.rules.catalogue.SchemaExampleMatchesSchema
 com.brekquater.api.rules.catalogue.ContentExampleMatchesSchema
+com.brekquater.api.rules.catalogue.InfoVersionIsSemantic
+com.brekquater.api.rules.catalogue.OneVersioningMechanism
+com.brekquater.api.rules.catalogue.VersionSegmentIsMajorOnly
+com.brekquater.api.rules.catalogue.VersionSegmentsShareOneIndex
+com.brekquater.api.rules.catalogue.OlderVersionsAreDeprecated
+com.brekquater.api.rules.catalogue.DeprecatedOperationIsExplained
+com.brekquater.api.rules.catalogue.SunsetIsDate
