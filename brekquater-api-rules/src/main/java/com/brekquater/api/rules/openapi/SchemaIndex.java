@@ -4,6 +4,7 @@
 package com.brekquater.api.rules.openapi;
 
 import com.brekquater.api.rules.ApiSchemaNode;
+import com.brekquater.api.rules.ApiSchemaShape;
 import com.brekquater.api.rules.JsonPointer;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
@@ -31,13 +32,18 @@ final class SchemaIndex {
     private static final String CONTENT = "content";
     // ponytail: a depth cap instead of cycle detection. A parsed document cannot loop without a $ref, which is not
     // followed, so only a document built in code could; switch to an identity set if one ever needs more depth.
-    private static final int MAX_DEPTH = 64;
+    static final int MAX_DEPTH = 64;
 
-    private final List<ApiSchemaNode> nodes = new ArrayList<>();
+    private final List<Visit> visits = new ArrayList<>();
 
     private SchemaIndex() {}
 
-    static List<ApiSchemaNode> of(OpenAPI openApi) {
+    static List<ApiSchemaNode> nodes(List<Visit> visits, LocalRefs refs) {
+        SchemaShapes shapes = new SchemaShapes(refs);
+        return visits.stream().map(visit -> node(visit, shapes.of(visit.schema()))).toList();
+    }
+
+    static List<Visit> of(OpenAPI openApi) {
         SchemaIndex index = new SchemaIndex();
         io.swagger.v3.oas.models.Components components = openApi.getComponents();
         Map<String, ?> named = Optional.<Map<String, ?>>ofNullable(components == null ? null : components.getSchemas())
@@ -45,7 +51,7 @@ final class SchemaIndex {
         new TreeMap<>(named).forEach((name, schema) -> index.walk(schema, COMPONENT_SCHEMAS.append(name), 0));
         OperationIndex.sortedPaths(openApi).forEach(index::walkPathItem);
         OperationIndex.sources(openApi).forEach(index::walkOperation);
-        return List.copyOf(index.nodes);
+        return List.copyOf(index.visits);
     }
 
     private void walkPathItem(String path, PathItem pathItem) {
@@ -90,11 +96,7 @@ final class SchemaIndex {
         if (!(candidate instanceof Schema<?> schema) || depth > MAX_DEPTH) {
             return;
         }
-        nodes.add(new ApiSchemaNode(
-                pointer,
-                Optional.ofNullable(schema.getPattern()),
-                Optional.ofNullable(schema.get$ref()),
-                Boolean.TRUE.equals(schema.getWriteOnly())));
+        visits.add(new Visit(pointer, schema));
         if (schema.get$ref() == null) {
             walkChildren(schema, pointer, depth + 1);
         }
@@ -110,6 +112,19 @@ final class SchemaIndex {
         walk(schema.getNot(), pointer.append("not"), depth);
         walk(schema.getAdditionalProperties(), pointer.append("additionalProperties"), depth);
     }
+
+    private static ApiSchemaNode node(Visit visit, ApiSchemaShape shape) {
+        Schema<?> schema = visit.schema();
+        return new ApiSchemaNode(
+                visit.pointer(),
+                Optional.ofNullable(schema.getPattern()),
+                Optional.ofNullable(schema.get$ref()),
+                Boolean.TRUE.equals(schema.getWriteOnly()),
+                shape);
+    }
+
+    /** One schema the walk reached, and where. */
+    record Visit(JsonPointer pointer, Schema<?> schema) {}
 
     private void walkEach(List<?> schemas, JsonPointer pointer, int depth) {
         List<?> branches = Optional.<List<?>>ofNullable(schemas).orElse(List.of());

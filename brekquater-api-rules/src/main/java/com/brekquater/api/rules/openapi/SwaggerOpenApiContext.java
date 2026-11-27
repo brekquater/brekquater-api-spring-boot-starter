@@ -3,6 +3,7 @@
 
 package com.brekquater.api.rules.openapi;
 
+import com.brekquater.api.rules.ApiExample;
 import com.brekquater.api.rules.ApiInfo;
 import com.brekquater.api.rules.ApiOAuthFlow;
 import com.brekquater.api.rules.ApiOperation;
@@ -45,6 +46,7 @@ public final class SwaggerOpenApiContext implements OpenApiContext {
     private final List<ApiServer> servers;
     private final List<ApiOAuthFlow> oauthFlows;
     private final List<ApiSchemaNode> schemas;
+    private final List<ApiExample> examples;
     private final DocumentSummary document;
 
     public SwaggerOpenApiContext(OpenAPI openApi) {
@@ -58,7 +60,9 @@ public final class SwaggerOpenApiContext implements OpenApiContext {
         this.securitySchemes = SecuritySchemes.of(openApi);
         this.servers = Servers.of(openApi);
         this.oauthFlows = OAuthFlowIndex.of(openApi);
-        this.schemas = SchemaIndex.of(openApi);
+        List<SchemaIndex.Visit> visits = SchemaIndex.of(openApi);
+        this.schemas = SchemaIndex.nodes(visits, new LocalRefs(openApi));
+        this.examples = ExampleIndex.of(openApi, visits);
         this.document = new DocumentSummary(
                 Optional.ofNullable(openApi.getOpenapi()).orElse(NOT_STATED),
                 info.title().orElse(NOT_STATED),
@@ -111,6 +115,11 @@ public final class SwaggerOpenApiContext implements OpenApiContext {
     @Override
     public List<ApiSchemaNode> schemas() {
         return schemas;
+    }
+
+    @Override
+    public List<ApiExample> examples() {
+        return examples;
     }
 
     @Override

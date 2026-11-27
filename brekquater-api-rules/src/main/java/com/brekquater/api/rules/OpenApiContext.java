@@ -44,5 +44,12 @@ public interface OpenApiContext {
      */
     List<ApiSchemaNode> schemas();
 
+    /**
+     * Returns every example and default in the document, each already validated against its schema: those of
+     * schemas first, then those of parameters and JSON bodies. A schema's {@code format} is not enforced, because
+     * JSON Schema treats it as a note.
+     */
+    List<ApiExample> examples();
+
     DocumentSummary document();
 }
