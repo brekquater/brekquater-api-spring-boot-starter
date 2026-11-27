@@ -9,6 +9,8 @@ brekquater:
       coverage: samples/bad/jacoco.xml
       test-results: samples/bad
       vulnerabilities: samples/bad/osv-scanner.json
+      # An earlier release of the bad API. The current one breaks it in every way the BQ-EVO rules check.
+      baseline: samples/bad/openapi-baseline.json
 
 # BQ-SEC-011: the environment endpoint is exposed and springdoc lists Actuator endpoints in the document.
 management:
