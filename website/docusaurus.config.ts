@@ -4,6 +4,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import llmsTxtPlugin from './plugins/llms-txt';
 import ruleCataloguePlugin from './plugins/rule-catalogue';
 
 const REPOSITORY = 'https://github.com/brekquater/brekquater-api-spring-boot-starter';
@@ -52,6 +53,8 @@ const config: Config = {
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
           editUrl: ({docPath}) => `${REPOSITORY}/edit/master/docs/${docPath}`,
+          // Read from git; the sitemap's lastmod uses it, which is the only sitemap hint Google reads.
+          showLastUpdateTime: true,
           // The default exclusions, plus planning notes that are kept locally and never published.
           exclude: [
             '**/_*.{js,jsx,ts,tsx,md,mdx}',
@@ -63,6 +66,13 @@ const config: Config = {
           ],
         },
         blog: false,
+        sitemap: {
+          lastmod: 'date',
+          // Google ignores changefreq and priority.
+          changefreq: null,
+          priority: null,
+          ignorePatterns: ['/api/search/**'],
+        },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -70,7 +80,7 @@ const config: Config = {
     ],
   ],
 
-  plugins: [ruleCataloguePlugin],
+  plugins: [ruleCataloguePlugin, llmsTxtPlugin],
 
   themes: [
     // Search runs in the browser on an index built with the site: no external service, nothing sent anywhere.

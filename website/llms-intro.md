@@ -15,14 +15,3 @@ Maven dependency:
 ```
 
 It is safe by default: the panel and the endpoints exist only in the `dev` and `local` profiles, it makes no outbound calls and sends no telemetry, and it never changes the `SecurityFilterChain`.
-
-## Docs
-
-- [Getting started](https://starter.brekquater.com/api/getting-started/): add the dependency and see the findings in Swagger UI
-- [Rule catalogue](https://starter.brekquater.com/api/rules/): each rule's check, why it matters, the Spring fix and how to suppress it
-- [Configuration](https://starter.brekquater.com/api/configuration/): `brekquater.api.*` properties, exposure modes, scoring and strict mode
-- [Build reports](https://starter.brekquater.com/api/reports/): JaCoCo, Surefire, Failsafe, OSV-Scanner and OWASP Dependency-Check evidence
-
-## Optional
-
-- [Source code](https://github.com/brekquater/brekquater-api-spring-boot-starter)

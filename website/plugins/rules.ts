@@ -16,20 +16,24 @@ export const RULES_DIR = path.join(__dirname, '..', '..', 'docs', 'rules');
 // The order categories appear in the sidebar.
 export const CATEGORY_ORDER = ['DESIGN', 'DOCUMENTATION', 'SECURITY', 'ERRORS', 'NAMING', 'TESTING'];
 
-export function readRules(): Rule[] {
+/** The rule pages' file names, sorted by rule ID. */
+export function ruleFiles(): string[] {
   return fs
     .readdirSync(RULES_DIR)
     .filter((file) => /^BQ-[A-Z]{3}-\d{3}\.md$/.test(file))
-    .sort()
-    .map((file) => {
-      const {data} = matter(fs.readFileSync(path.join(RULES_DIR, file), 'utf8'));
-      return {
-        id: data.rule_id,
-        // The title is "<RULE-ID>: <what it checks>"; the catalogue shows the second part next to the ID.
-        title: String(data.title).replace(/^BQ-[A-Z]{3}-\d{3}: /, ''),
-        severity: data.severity,
-        category: data.category,
-        reads: data.reads,
-      };
-    });
+    .sort();
+}
+
+export function readRules(): Rule[] {
+  return ruleFiles().map((file) => {
+    const {data} = matter(fs.readFileSync(path.join(RULES_DIR, file), 'utf8'));
+    return {
+      id: data.rule_id,
+      // The title is "<RULE-ID>: <what it checks>"; the catalogue shows the second part next to the ID.
+      title: String(data.title).replace(/^BQ-[A-Z]{3}-\d{3}: /, ''),
+      severity: data.severity,
+      category: data.category,
+      reads: data.reads,
+    };
+  });
 }

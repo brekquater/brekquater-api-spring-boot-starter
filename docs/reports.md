@@ -1,3 +1,7 @@
+---
+description: Feed JaCoCo, Surefire, Failsafe, OSV-Scanner or OWASP Dependency-Check reports to the starter to turn on its testing and vulnerability rules.
+---
+
 # Build reports
 
 Besides the OpenAPI document, the starter reads three kinds of report that your build can write. Each one turns on more rules:
