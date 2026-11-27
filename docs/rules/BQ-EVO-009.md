@@ -8,7 +8,7 @@ category: DESIGN
 reads: BASELINE
 ---
 
-**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path, with path variable names ignored. No operation's `x-sunset` date is earlier than the date the baseline gave it. Dates and RFC 3339 date-times are compared by day; a value that is not a date is left to [BQ-DOC-013](BQ-DOC-013.md). The rule is skipped when there is no baseline document.
+**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path; when no path is the same, one that differs only in path variable names is used, and an operation that several could have become is skipped. Each finding names the operation a change affects. No operation's `x-sunset` date is earlier than the date the baseline gave it. Dates and RFC 3339 date-times are compared by day; a value that is not a date is left to [BQ-DOC-013](BQ-DOC-013.md). The rule is skipped when there is no baseline document.
 
 ## Why it matters when you scale
 

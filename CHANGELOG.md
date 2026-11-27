@@ -27,6 +27,7 @@ All notable changes to this project are recorded here. The format follows [Keep 
   - a breaking change raises the major version (`BQ-EVO-008`); an `x-sunset` does not move earlier (`BQ-EVO-009`).
 - A new input, `BASELINE`, in the assessment's `inputs` list, and the panel lists the baseline's age with the other reports.
 - Rules can read the changes since the baseline (`AssessmentContext.changes()`, `ApiChanges`, `ApiChange`).
+- `UnreadableReportException(String)` is public, so report readers outside the rules module can say why a file was not used.
 - 7 versioning rules, checked against what springdoc 3 generates for Spring's own API versioning and for hand-written version prefixes:
   - `info.version` is `MAJOR.MINOR.PATCH` or a date (`BQ-DOC-011`);
   - the API uses one versioning mechanism, a path segment, a header or a query parameter (`BQ-DES-015`); path versions name the major version only (`BQ-NAM-007`) and sit at the same position (`BQ-DES-016`); when several majors coexist, the older ones are deprecated (`BQ-DES-017`, INFO);

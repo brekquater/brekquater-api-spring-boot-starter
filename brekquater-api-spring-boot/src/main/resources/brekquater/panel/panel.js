@@ -40,7 +40,7 @@
     { ruleId: "BQ-VUL-003", label: "Medium", chip: "bq-minor" },
     { ruleId: "BQ-VUL-004", label: "Low", chip: "bq-info" }
   ];
-  var REPORT_INPUTS = ["COVERAGE", "TEST_RESULTS", "VULNERABILITIES", "BASELINE"];
+  var REPORT_INPUTS = ["COVERAGE", "TEST_RESULTS", "VULNERABILITIES"];
   var EVIDENCE_SOURCES = { COVERAGE: "Coverage report", TEST_RESULTS: "Test", VULNERABILITIES: "Dependency" };
   var NOT_ASSESSED_REASONS = {
     MISSING_INPUT: "Input not found",
@@ -364,14 +364,23 @@
     return input && input.status !== "READ" && input.hint ? element("p", "bq-note", input.hint) : null;
   }
 
+  // Build reports go stale with every code change; the baseline is meant to stay as it was at the last release.
   function reportAges(inputs) {
-    var read = REPORT_INPUTS.map(function (type) { return inputs[type]; })
-      .filter(function (input) { return input && input.file && input.modifiedAt; });
-    if (read.length === 0) {
-      return null;
+    var read = REPORT_INPUTS.map(function (type) { return inputs[type]; }).filter(dated);
+    var sentences = [];
+    if (read.length > 0) {
+      var text = read.map(function (input) { return input.file + " written " + age(input.modifiedAt); }).join(" · ");
+      sentences.push("Reports: " + text + ". Rebuild to refresh them.");
     }
-    var text = read.map(function (input) { return input.file + " written " + age(input.modifiedAt); }).join(" · ");
-    return element("p", "bq-muted bq-report-ages", "Reports: " + text + ". Rebuild to refresh them.");
+    if (dated(inputs.BASELINE)) {
+      sentences.push("Baseline: " + inputs.BASELINE.file + " from " + age(inputs.BASELINE.modifiedAt)
+        + ". Replace it when you release.");
+    }
+    return sentences.length > 0 ? element("p", "bq-muted bq-report-ages", sentences.join(" ")) : null;
+  }
+
+  function dated(input) {
+    return Boolean(input && input.file && input.modifiedAt);
   }
 
   function age(timestamp) {

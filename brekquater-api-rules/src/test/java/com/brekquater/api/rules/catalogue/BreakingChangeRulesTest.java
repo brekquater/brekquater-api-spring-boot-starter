@@ -71,6 +71,21 @@ class BreakingChangeRulesTest {
         }
 
         @Test
+        void leavesAnOperationAloneWhenSeveralRenamedOnesCouldHaveReplacedIt() {
+            RuleFixture result = compare(rule, """
+                    /orders/{key}:
+                      get: {responses: {'200': {description: OK}}}
+                    """, """
+                    /orders/{id}:
+                      get: {responses: {'200': {description: OK}}}
+                    /orders/{orderId}:
+                      get: {responses: {'200': {description: OK}}}
+                    """);
+
+            assertThat(result.failingLocations()).isEmpty();
+        }
+
+        @Test
         void reportsAnOperationRemovedWithoutWarning() {
             RuleFixture result = compare(rule, """
                     /orders:
@@ -113,6 +128,23 @@ class BreakingChangeRulesTest {
         }
 
         @Test
+        void comparesTheOperationWithTheSamePathBeforeOneWhoseVariablesWereRenamed() {
+            RuleFixture result = compare(rule, """
+                    /orders/{orderId}:
+                      get: {responses: {'200': {description: OK}}}
+                    """, """
+                    /orders/{id}:
+                      get:
+                        parameters: [{name: region, in: query, required: true}]
+                        responses: {'200': {description: OK}}
+                    /orders/{orderId}:
+                      get: {responses: {'200': {description: OK}}}
+                    """);
+
+            assertThat(result.failingLocations()).isEmpty();
+        }
+
+        @Test
         void reportsAParameterThatBecameRequiredAndANewRequiredOne() {
             RuleFixture result = compare(rule, """
                     /orders:
@@ -126,8 +158,7 @@ class BreakingChangeRulesTest {
                         responses: {'200': {description: OK}}
                     """);
 
-            assertThat(result.failingLocations())
-                    .containsExactly("/paths/~1orders/get/parameters/0", "/paths/~1orders/get/parameters/1");
+            assertThat(result.failingLocations()).containsExactly("/paths/~1orders/get", "/paths/~1orders/get");
             assertThat(result.messages()).first()
                     .isEqualTo("The query parameter size is required now, but was optional or absent in the baseline.");
         }
@@ -183,8 +214,11 @@ class BreakingChangeRulesTest {
                             - {type: object, properties: {region: {type: string}}, required: [region]}
                     """);
 
-            assertThat(result.failingLocations()).containsExactly(
-                    "/components/schemas/NewOrder/allOf/1/properties/region", "/paths/~1orders/post/requestBody");
+            assertThat(result.failingLocations()).containsExactly("/paths/~1orders/post", "/paths/~1orders/post");
+            assertThat(result.messages()).containsExactly(
+                    "The property region is required now, but was optional or absent in the baseline. The change is in "
+                            + "/components/schemas/NewOrder/allOf/1/properties/region.",
+                    "The request body is required now, but was optional or absent in the baseline.");
         }
     }
 
@@ -231,12 +265,11 @@ class BreakingChangeRulesTest {
                         responses: {'200': {description: OK, content: {'*/*': {schema: {type: object, properties: {code: {type: string}}}}}}}
                     """);
 
-            assertThat(result.failingLocations())
-                    .containsExactly("/paths/~1orders~1{id}/get/responses/200/content/*~1*/schema");
+            assertThat(result.failingLocations()).containsExactly("/paths/~1orders~1{id}/get");
         }
 
         @Test
-        void reportsARequiredPropertyRemovedFromANestedSharedSchemaOnce() {
+        void reportsARequiredPropertyRemovedFromASharedSchemaOnEveryOperationItAffects() {
             RuleFixture result = compare(rule, """
                     /orders:
                       get:
@@ -259,9 +292,10 @@ class BreakingChangeRulesTest {
                         Order: {type: object, properties: {id: {type: string}}, required: [id]}
                     """);
 
-            assertThat(result.failingLocations()).containsExactly("/components/schemas/Order");
-            assertThat(result.messages())
-                    .containsExactly("Responses no longer have the property total, which the baseline marked required.");
+            assertThat(result.failingLocations()).containsExactly("/paths/~1orders/get", "/paths/~1orders~1{id}/get");
+            assertThat(result.messages()).containsOnly("Responses no longer have the property total, which the baseline "
+                    + "marked required. The change is in /components/schemas/Order.");
+            assertThat(result.applicableTargets()).isEqualTo(2);
         }
     }
 
@@ -301,7 +335,7 @@ class BreakingChangeRulesTest {
                         responses: {'200': {description: OK}}
                     """);
 
-            assertThat(result.failingLocations()).containsExactly("/paths/~1orders/get/parameters/0/schema");
+            assertThat(result.failingLocations()).containsExactly("/paths/~1orders/get");
             assertThat(result.messages()).containsExactly("The query parameter status no longer accepts \"CLOSED\".");
         }
     }
@@ -372,8 +406,7 @@ class BreakingChangeRulesTest {
                         responses: {'200': {description: OK, content: {application/json: {schema: {type: object, properties: {tag: {type: array, items: {type: string}}}}}}}}
                     """);
 
-            assertThat(result.failingLocations()).containsExactly(
-                    "/paths/~1orders/get/responses/200/content/application~1json/schema/properties/tag");
+            assertThat(result.failingLocations()).containsExactly("/paths/~1orders/get");
             assertThat(result.messages()).containsExactly("The property tag changed type from string to array.");
         }
 
@@ -421,6 +454,18 @@ class BreakingChangeRulesTest {
 
             assertThat(result.failingLocations()).containsExactly("/info/version");
             assertThat(result.messages()).first().asString().startsWith("The API has breaking changes since 1.4.0");
+        }
+
+        @Test
+        void passesABreakingChangeUnderALaterDateAndReportsOneUnderTheSameDate() {
+            assertThat(compare(rule, "2026-11-27", BEFORE, "2026-12-01", AFTER).failingLocations()).isEmpty();
+            assertThat(compare(rule, "2026-11-27", BEFORE, "2026-11-27", AFTER).failingLocations())
+                    .containsExactly("/info/version");
+        }
+
+        @Test
+        void doesNotCompareADatedVersionWithANumberedOne() {
+            assertThat(compare(rule, "2026-11-27", BEFORE, "2.0.0", AFTER).applicableTargets()).isZero();
         }
 
         @Test

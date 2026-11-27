@@ -170,6 +170,14 @@ class JsonReportWriterTest {
     }
 
     @Test
+    void saysTheBaselineWaitsForTheDocumentRatherThanAskingForAFileThatMayExist() {
+        JsonNode report = JSON.readTree(write(AssessmentContext.empty()));
+
+        assertThat(report.get("inputs").get(4).get("hint").asString())
+                .startsWith("The baseline is compared once the application's OpenAPI document can be read.");
+    }
+
+    @Test
     void namesEachBuildReportByFileNameAndSaysWhenItWasWritten() {
         JsonNode report = JSON.readTree(write(ORDERS_API.withReports(TESTED_BUILD)));
 

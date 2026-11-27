@@ -7,6 +7,7 @@ import com.brekquater.api.rules.ApiChange;
 import com.brekquater.api.rules.ApiChange.Kind;
 import com.brekquater.api.rules.ApiChanges;
 import com.brekquater.api.rules.JsonPointer;
+import com.brekquater.api.rules.openapi.SchemaPair.Direction;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Info;
@@ -33,8 +34,9 @@ import java.util.stream.Stream;
 
 /**
  * Compares the OpenAPI document of the last release with the current one and lists the changes that can break a
- * client. Operations are matched by method and path, with path variable names ignored, so renaming {@code {id}}
- * to {@code {orderId}} or changing an operationId is not a change.
+ * client. An operation is matched by method and exact path, or else by method and path with variable names
+ * ignored, so renaming {@code {id}} to {@code {orderId}} or changing an operationId is not a change. An operation
+ * that matches several current ones that way is left alone, because which one replaced it cannot be told.
  */
 public final class SwaggerApiChanges {
 
@@ -60,65 +62,79 @@ public final class SwaggerApiChanges {
     /** Returns how {@code current} differs from {@code baseline}. */
     public static ApiChanges between(OpenAPI baseline, OpenAPI current) {
         SwaggerApiChanges comparison = new SwaggerApiChanges(baseline, current);
-        Map<String, OperationSource> now = OperationIndex.sources(current)
-                .collect(Collectors.toMap(SwaggerApiChanges::key, Function.identity(), (first, second) -> first));
+        OperationMatcher matcher = new OperationMatcher(OperationIndex.sources(current).toList());
         List<OperationSource> before = OperationIndex.sources(baseline).toList();
-        before.forEach(old -> Optional.ofNullable(now.get(key(old)))
-                .ifPresentOrElse(found -> comparison.compare(old, found), () -> comparison.removed(old)));
+        before.forEach(old -> comparison.matched(old, matcher.match(old)));
         return new ApiChanges(comparison.schemas.changes(), before.size(), version(baseline), version(current));
+    }
+
+    private void matched(OperationSource old, Match match) {
+        if (match.gone()) {
+            removed(old);
+        }
+        match.operation().ifPresent(now -> compare(old, now));
     }
 
     private void removed(OperationSource old) {
         if (!Boolean.TRUE.equals(old.operation().getDeprecated())) {
-            schemas.add(Kind.OPERATION_REMOVED, pointer(old), old.method().name() + " " + old.path(), "");
+            JsonPointer pointer = pointer(old);
+            schemas.add(new ApiChange(Kind.OPERATION_REMOVED, pointer, pointer, old.method().name() + " " + old.path(), ""));
         }
     }
 
     private void compare(OperationSource old, OperationSource now) {
-        JsonPointer pointer = pointer(now);
-        parameters(old, now, pointer);
-        requestBody(old.operation().getRequestBody(), now.operation().getRequestBody(), pointer.append("requestBody"));
-        responses(old.operation(), now.operation(), pointer.append("responses"));
-        sunset(old.operation(), now.operation(), pointer);
+        JsonPointer operation = pointer(now);
+        parameters(old, now, operation);
+        requestBody(old.operation().getRequestBody(), now.operation().getRequestBody(), operation);
+        responses(old.operation(), now.operation(), operation);
+        sunset(old.operation(), now.operation(), operation);
     }
 
-    private void parameters(OperationSource old, OperationSource now, JsonPointer pointer) {
-        Map<String, Parameter> before = parametersOf(old, oldComponents, pointer).values().stream()
-                .collect(Collectors.toMap(SwaggerApiChanges::parameterKey, Function.identity(), (first, second) -> first));
-        parametersOf(now, newComponents, pointer).forEach((location, parameter) -> {
-            if (PATH.equals(parameter.getIn())) {
-                return;
+    private void parameters(OperationSource old, OperationSource now, JsonPointer operation) {
+        Map<String, Parameter> before = new LinkedHashMap<>();
+        parametersOf(old, oldComponents).values().forEach(parameter -> before.putIfAbsent(parameterKey(parameter), parameter));
+        parametersOf(now, newComponents).forEach((location, parameter) -> {
+            if (!PATH.equals(parameter.getIn())) {
+                parameter(Optional.ofNullable(before.get(parameterKey(parameter))), parameter,
+                        new SchemaPair(null, parameter.getSchema(), location, subject(parameter), Direction.REQUEST, operation));
             }
-            Optional<Parameter> previous = Optional.ofNullable(before.get(parameterKey(parameter)));
-            String subject = parameter.getIn() + " parameter " + parameter.getName();
-            if (Boolean.TRUE.equals(parameter.getRequired()) && !previous.map(Parameter::getRequired).orElse(false)) {
-                schemas.add(Kind.PARAMETER_BECAME_REQUIRED, location, subject, "");
-            }
-            previous.ifPresent(earlier ->
-                    schemas.compareRequest(earlier.getSchema(), parameter.getSchema(), location.append("schema"), subject));
         });
     }
 
+    // The pair's pointer is the parameter's location; its schema is compared one level down.
+    private void parameter(Optional<Parameter> previous, Parameter parameter, SchemaPair at) {
+        if (Boolean.TRUE.equals(parameter.getRequired()) && !previous.map(Parameter::getRequired).orElse(false)) {
+            schemas.add(new ApiChange(Kind.PARAMETER_BECAME_REQUIRED, at.operation(), at.pointer(), at.subject(), ""));
+        }
+        previous.ifPresent(earlier ->
+                schemas.compare(at.child(earlier.getSchema(), parameter.getSchema(), at.pointer().append("schema"))));
+    }
+
+    private static String subject(Parameter parameter) {
+        return parameter.getIn() + " parameter " + parameter.getName();
+    }
+
     // Operation parameters override path item parameters with the same name and location, as in OpenAPI.
-    private static Map<JsonPointer, Parameter> parametersOf(OperationSource source, Components components, JsonPointer op) {
+    private static Map<JsonPointer, Parameter> parametersOf(OperationSource source, Components components) {
         Map<String, Map.Entry<JsonPointer, Parameter>> byKey = new LinkedHashMap<>();
-        JsonPointer item = PATHS.append(source.path()).append("parameters");
-        collect(source.pathItemParameters(), item, components, byKey);
-        collect(Optional.ofNullable(source.operation().getParameters()).orElse(List.of()), op.append("parameters"),
-                components, byKey);
+        byKey.putAll(indexed(source.pathItemParameters(), PATHS.append(source.path()).append("parameters"), components));
+        byKey.putAll(indexed(Optional.ofNullable(source.operation().getParameters()).orElse(List.of()),
+                pointer(source).append("parameters"), components));
         Map<JsonPointer, Parameter> parameters = new LinkedHashMap<>();
         byKey.values().forEach(entry -> parameters.put(entry.getKey(), entry.getValue()));
         return parameters;
     }
 
-    private static void collect(List<Parameter> declared, JsonPointer owner, Components components,
-            Map<String, Map.Entry<JsonPointer, Parameter>> byKey) {
+    private static Map<String, Map.Entry<JsonPointer, Parameter>> indexed(
+            List<Parameter> declared, JsonPointer owner, Components components) {
+        Map<String, Map.Entry<JsonPointer, Parameter>> byKey = new LinkedHashMap<>();
         for (int index = 0; index < declared.size(); index++) {
             Parameter parameter = declared.get(index) == null ? null : components.resolve(declared.get(index));
             if (parameter != null && parameter.getName() != null && parameter.getIn() != null) {
                 byKey.put(parameterKey(parameter), Map.entry(owner.append(String.valueOf(index)), parameter));
             }
         }
+        return byKey;
     }
 
     // Header names are case-insensitive in HTTP; other parameter names are not.
@@ -127,38 +143,40 @@ public final class SwaggerApiChanges {
         return parameter.getIn() + ":" + name;
     }
 
-    private void requestBody(RequestBody old, RequestBody now, JsonPointer pointer) {
+    private void requestBody(RequestBody old, RequestBody now, JsonPointer operation) {
         if (now == null) {
             return;
         }
-        boolean wasRequired = old != null && Boolean.TRUE.equals(old.getRequired());
-        if (Boolean.TRUE.equals(now.getRequired()) && !wasRequired) {
-            schemas.add(Kind.REQUEST_BODY_BECAME_REQUIRED, pointer, "request body", "");
+        JsonPointer pointer = operation.append("requestBody");
+        if (Boolean.TRUE.equals(now.getRequired()) && !(old != null && Boolean.TRUE.equals(old.getRequired()))) {
+            schemas.add(new ApiChange(Kind.REQUEST_BODY_BECAME_REQUIRED, operation, pointer, "request body", ""));
         }
         if (old != null) {
-            jsonBody(old.getContent()).ifPresent(before -> jsonBody(now.getContent()).ifPresent(after -> schemas
-                    .compareRequest(before.getValue(), after.getValue(), schemaPointer(pointer, after), "request body")));
+            compareBodies(old.getContent(), now.getContent(),
+                    new SchemaPair(null, null, pointer, "request body", Direction.REQUEST, operation));
         }
     }
 
-    private void responses(Operation old, Operation now, JsonPointer pointer) {
-        Map<String, ApiResponse> before = responsesOf(old, oldComponents);
+    private void responses(Operation old, Operation now, JsonPointer operation) {
         Map<String, ApiResponse> after = responsesOf(now, newComponents);
-        before.forEach((code, response) -> {
+        JsonPointer pointer = operation.append("responses");
+        responsesOf(old, oldComponents).forEach((code, response) -> {
             if (!code.startsWith(SUCCESS) || code.equalsIgnoreCase(ANY_SUCCESS)) {
                 return;
             }
             if (!after.containsKey(code) && !after.containsKey(ANY_SUCCESS)) {
-                schemas.add(Kind.SUCCESS_STATUS_REMOVED, pointer, "status " + code, "");
+                schemas.add(new ApiChange(Kind.SUCCESS_STATUS_REMOVED, operation, pointer, "status " + code, ""));
                 return;
             }
-            Optional.ofNullable(after.get(code)).ifPresent(current -> compareResponse(response, current, pointer.append(code)));
+            Optional.ofNullable(after.get(code)).ifPresent(current -> compareBodies(response.getContent(), current.getContent(),
+                    new SchemaPair(null, null, pointer.append(code), "response body", Direction.RESPONSE, operation)));
         });
     }
 
-    private void compareResponse(ApiResponse old, ApiResponse now, JsonPointer pointer) {
-        jsonBody(old.getContent()).ifPresent(before -> jsonBody(now.getContent()).ifPresent(after -> schemas
-                .compareResponse(before.getValue(), after.getValue(), schemaPointer(pointer, after), "response body")));
+    // The pair names where the bodies are and which way they travel; its schemas come from the two contents.
+    private void compareBodies(Content old, Content now, SchemaPair bodies) {
+        jsonBody(old).ifPresent(before -> jsonBody(now).ifPresent(after -> schemas.compare(bodies.child(
+                before.getValue(), after.getValue(), bodies.pointer().append("content").append(after.getKey()).append("schema")))));
     }
 
     private static Map<String, ApiResponse> responsesOf(Operation operation, Components components) {
@@ -187,15 +205,12 @@ public final class SwaggerApiChanges {
         return mediaType.toLowerCase(Locale.ROOT).contains(JSON);
     }
 
-    private static JsonPointer schemaPointer(JsonPointer owner, Map.Entry<String, Schema<?>> body) {
-        return owner.append("content").append(body.getKey()).append("schema");
-    }
-
-    private void sunset(Operation old, Operation now, JsonPointer pointer) {
+    private void sunset(Operation old, Operation now, JsonPointer operation) {
         Optional<LocalDate> before = sunsetOf(old);
         Optional<LocalDate> after = sunsetOf(now);
         if (before.isPresent() && after.isPresent() && after.get().isBefore(before.get())) {
-            schemas.add(Kind.SUNSET_MOVED_EARLIER, pointer, SUNSET_EXTENSION, before.get() + " to " + after.get());
+            schemas.add(new ApiChange(Kind.SUNSET_MOVED_EARLIER, operation, operation, SUNSET_EXTENSION,
+                    before.get() + " to " + after.get()));
         }
     }
 
@@ -219,15 +234,52 @@ public final class SwaggerApiChanges {
         }
     }
 
-    private static String key(OperationSource source) {
-        return source.method() + " " + source.path().replaceAll("\\{[^}/]*}", "{}");
-    }
-
-    private static JsonPointer pointer(OperationSource source) {
+    static JsonPointer pointer(OperationSource source) {
         return PATHS.append(source.path()).append(source.method().pathItemKey());
     }
 
     private static Optional<String> version(OpenAPI openApi) {
         return Optional.ofNullable(openApi.getInfo()).map(Info::getVersion).filter(Objects::nonNull);
+    }
+
+    /**
+     * What a baseline operation became.
+     *
+     * @param operation the current operation it became, if exactly one fits
+     * @param gone whether no current operation fits at all
+     */
+    private record Match(Optional<OperationSource> operation, boolean gone) {}
+
+    /** Finds the current operation that a baseline operation became. */
+    private static final class OperationMatcher {
+
+        private final Map<String, OperationSource> exact;
+        private final Map<String, List<OperationSource>> renamed;
+
+        OperationMatcher(List<OperationSource> current) {
+            this.exact = current.stream().collect(Collectors.toMap(OperationMatcher::exactKey, Function.identity(),
+                    (first, second) -> first));
+            this.renamed = current.stream().collect(Collectors.groupingBy(OperationMatcher::renamedKey));
+        }
+
+        Match match(OperationSource old) {
+            Optional<OperationSource> same = Optional.ofNullable(exact.get(exactKey(old)));
+            if (same.isPresent()) {
+                return new Match(same, false);
+            }
+            List<OperationSource> candidates = renamed.getOrDefault(renamedKey(old), List.of());
+            if (candidates.size() == 1) {
+                return new Match(Optional.of(candidates.get(0)), false);
+            }
+            return new Match(Optional.empty(), candidates.isEmpty());
+        }
+
+        private static String exactKey(OperationSource source) {
+            return source.method() + " " + source.path();
+        }
+
+        private static String renamedKey(OperationSource source) {
+            return source.method() + " " + source.path().replaceAll("\\{[^}/]*}", "{}");
+        }
     }
 }

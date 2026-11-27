@@ -19,6 +19,10 @@ final class ReportHints {
             RuleInput.VULNERABILITIES, "Run OSV-Scanner or OWASP Dependency-Check with JSON output." + GUIDE,
             RuleInput.BASELINE, "Commit the OpenAPI document of your last release as openapi-baseline.json." + GUIDE);
 
+    /** The hint for the baseline when the current OpenAPI document could not be read, so nothing was compared. */
+    static final String BASELINE_NOT_COMPARED =
+            "The baseline is compared once the application's OpenAPI document can be read." + GUIDE;
+
     private ReportHints() {}
 
     static String of(RuleInput input, ReportStatus status) {

@@ -8,7 +8,7 @@ category: DESIGN
 reads: BASELINE
 ---
 
-**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path, with path variable names ignored. Every property the baseline lists as `required` in a success response is still a property of that response. Shared schemas, nested objects, arrays and `allOf` branches are followed. A `writeOnly` property is not reported, because it was never returned. The rule is skipped when there is no baseline document.
+**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path; when no path is the same, one that differs only in path variable names is used, and an operation that several could have become is skipped. Each finding names the operation a change affects. Every property the baseline lists as `required` in a success response is still a property of that response. Shared schemas, nested objects, arrays and `allOf` branches are followed, and a change in a shared schema is reported on every operation that uses it. A `writeOnly` property is not reported, because it was never returned. The rule is skipped when there is no baseline document.
 
 ## Why it matters when you scale
 

@@ -10,13 +10,16 @@ import java.util.Objects;
  * One difference between the OpenAPI document of the last release and the current one that can affect clients.
  *
  * @param kind what changed
- * @param pointer where the change is: in the current document, or in the baseline for a removed operation
+ * @param operation the operation it affects: in the current document, or in the baseline for a removed operation
+ * @param pointer where the change is, which is outside the operation when it is in a shared schema
  * @param subject what changed, such as {@code GET /orders}, {@code query parameter page} or {@code property total}
  * @param detail how it changed, such as {@code integer to string}; empty when the kind says it all
  */
-public record ApiChange(Kind kind, JsonPointer pointer, String subject, String detail) implements Comparable<ApiChange> {
+public record ApiChange(Kind kind, JsonPointer operation, JsonPointer pointer, String subject, String detail)
+        implements Comparable<ApiChange> {
 
-    private static final Comparator<ApiChange> ORDER = Comparator.comparing((ApiChange change) -> change.pointer().value())
+    private static final Comparator<ApiChange> ORDER = Comparator.comparing((ApiChange change) -> change.operation().value())
+            .thenComparing(change -> change.pointer().value())
             .thenComparing(ApiChange::kind)
             .thenComparing(ApiChange::subject)
             .thenComparing(ApiChange::detail);
@@ -49,9 +52,15 @@ public record ApiChange(Kind kind, JsonPointer pointer, String subject, String d
 
     public ApiChange {
         Objects.requireNonNull(kind, "kind");
+        Objects.requireNonNull(operation, "operation");
         Objects.requireNonNull(pointer, "pointer");
         Objects.requireNonNull(subject, "subject");
         Objects.requireNonNull(detail, "detail");
+    }
+
+    /** Returns whether the change is outside the operation, in a schema that other operations may share. */
+    public boolean inSharedSchema() {
+        return !pointer.value().startsWith(operation.value());
     }
 
     @Override

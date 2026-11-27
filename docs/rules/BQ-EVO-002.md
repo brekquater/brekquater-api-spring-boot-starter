@@ -8,7 +8,7 @@ category: DESIGN
 reads: BASELINE
 ---
 
-**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path, with path variable names ignored. No query, header or cookie parameter that was optional or absent in the baseline is required now. Header names are compared ignoring case. Path parameters are part of the path and are not checked. The rule is skipped when there is no baseline document.
+**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path; when no path is the same, one that differs only in path variable names is used, and an operation that several could have become is skipped. Each finding names the operation a change affects. No query, header or cookie parameter that was optional or absent in the baseline is required now. Header names are compared ignoring case. Path parameters are part of the path and are not checked. The rule is skipped when there is no baseline document.
 
 ## Why it matters when you scale
 

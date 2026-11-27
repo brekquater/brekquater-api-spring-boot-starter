@@ -8,7 +8,7 @@ category: DESIGN
 reads: BASELINE
 ---
 
-**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path, with path variable names ignored. When any of BQ-EVO-001 to BQ-EVO-007 finds a breaking change, the major number of `info.version` is higher than in the baseline. Versions are read as [Semantic Versioning 2.0](https://semver.org/spec/v2.0.0.html), an optional `v` included; the rule is skipped when either version has no major number. MINOR, because the breaking changes themselves are already reported. The rule is skipped when there is no baseline document.
+**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path; when no path is the same, one that differs only in path variable names is used, and an operation that several could have become is skipped. Each finding names the operation a change affects. When any of BQ-EVO-001 to BQ-EVO-007 finds a breaking change, the major number of `info.version` is higher than in the baseline. Versions are read as [Semantic Versioning 2.0](https://semver.org/spec/v2.0.0.html), an optional `v` included. A dated version such as `2026-11-27` names a whole release, so a later date passes. The rule is skipped when a version has no major number, or when one version is dated and the other is not. MINOR, because the breaking changes themselves are already reported. The rule is skipped when there is no baseline document.
 
 ## Why it matters when you scale
 

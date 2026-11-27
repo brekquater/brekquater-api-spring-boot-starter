@@ -8,7 +8,7 @@ category: DESIGN
 reads: BASELINE
 ---
 
-**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path, with path variable names ignored. No value of a request parameter's or JSON request property's `enum` in the baseline is missing from the same enum now. Dropping the enum altogether accepts more, so it is not reported. The rule is skipped when there is no baseline document.
+**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path; when no path is the same, one that differs only in path variable names is used, and an operation that several could have become is skipped. Each finding names the operation a change affects. No value of a request parameter's or JSON request property's `enum` in the baseline is missing from the same enum now. Dropping the enum altogether accepts more, so it is not reported. The rule is skipped when there is no baseline document.
 
 ## Why it matters when you scale
 

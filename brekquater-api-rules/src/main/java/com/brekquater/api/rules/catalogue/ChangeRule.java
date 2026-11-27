@@ -18,7 +18,8 @@ import java.util.List;
 
 /**
  * Base class for rules that report one kind of change since the baseline document. Every operation of the
- * baseline is a target, because each one was checked for the change.
+ * baseline is a target, because each one was checked for the change, and each finding names the operation the
+ * change affects.
  */
 abstract class ChangeRule implements Rule {
 
@@ -54,8 +55,18 @@ abstract class ChangeRule implements Rule {
 
     private RuleResult evaluate(ApiChanges changes) {
         List<Finding> findings = reported(changes).stream()
-                .map(change -> Finding.of(this, new Evidence(RuleInput.BASELINE, change.pointer().value()), explain(change)))
+                .map(change -> Finding.of(this, new Evidence(RuleInput.BASELINE, change.operation().value()), located(change)))
                 .toList();
         return RuleResult.of(changes.comparedOperations(), findings);
+    }
+
+    // A change in a shared schema is reported on each operation it affects, so the message says where it is.
+    private Explanation located(ApiChange change) {
+        Explanation explanation = explain(change);
+        if (!change.inSharedSchema()) {
+            return explanation;
+        }
+        return new Explanation(explanation.message() + " The change is in " + change.pointer().value() + ".",
+                explanation.remediation());
     }
 }

@@ -8,7 +8,7 @@ category: DESIGN
 reads: BASELINE
 ---
 
-**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path, with path variable names ignored. No parameter, JSON body or property has a type that shares nothing with its type in the baseline. `integer` and `number` may replace each other, adding `null` is not a change, and a schema without a declared type is not compared. The rule is skipped when there is no baseline document.
+**Checks:** Compares the current document with the baseline, the OpenAPI document of your last release (see [reports](../reports.md#breaking-changes-the-baseline-document)). Operations are matched by method and path; when no path is the same, one that differs only in path variable names is used, and an operation that several could have become is skipped. Each finding names the operation a change affects. No parameter, JSON body or property has a type that shares nothing with its type in the baseline. `integer` and `number` may replace each other, adding `null` is not a change, and a schema without a declared type is not compared. The rule is skipped when there is no baseline document.
 
 ## Why it matters when you scale
 

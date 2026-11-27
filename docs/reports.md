@@ -109,12 +109,12 @@ At each release, save the document the release serves and commit it:
 curl http://localhost:8080/v3/api-docs -o openapi-baseline.json
 ```
 
-The file can be JSON or YAML, in OpenAPI 3.0 or 3.1. Between releases it stays the same, so every change you make is compared with what your clients actually use, and code review shows the API's diff when someone refreshes it.
+The file can be JSON or YAML, in OpenAPI 3.0 or 3.1, and must be saved as UTF-8. Windows PowerShell's `Out-File` writes UTF-16, so use `curl.exe -o`; a file that cannot be read is marked `UNREADABLE`, and the log says why. Between releases it stays the same, so every change you make is compared with what your clients actually use, and code review shows the API's diff when someone refreshes it.
 
 What is compared:
 
-- Operations are matched by method and path, with path variable names ignored. Renaming `{id}` to `{orderId}`, or changing an operationId, is not a change.
-- Parameters, request bodies and the JSON bodies of success responses are compared, following shared schemas, nested objects, arrays and `allOf`. A change in a shared schema is reported once, where it is defined. A `*/*` body, which springdoc writes by default, is compared as JSON.
+- Operations are matched by method and path. When no path is the same, one that differs only in path variable names is used, so renaming `{id}` to `{orderId}`, or changing an operationId, is not a change. An operation that several current ones could have become is skipped rather than guessed.
+- Parameters, request bodies and the JSON bodies of success responses are compared, following shared schemas, nested objects, arrays and `allOf`. A change in a shared schema is reported on every operation that uses it, and the message says where the schema is. A `*/*` body, which springdoc writes by default, is compared as JSON.
 - The server address springdoc generates for the running application is ignored.
 
 When a change is intended, release it, and refresh the baseline in the same release.
