@@ -1,3 +1,7 @@
+---
+description: Every brekquater.api property, strict mode, exposure, the panel, suppressing a finding on one operation, and replacing parts of the starter.
+---
+
 # Configuration reference
 
 Every property lives under `brekquater.api`. Your IDE autocompletes them from the metadata in the jar.
