@@ -40,6 +40,12 @@ public interface ApiOperation {
      */
     Optional<List<ApiSecurityRequirement>> declaredSecurity();
 
+    /** Returns whether the operation is marked {@code deprecated: true}. */
+    boolean deprecated();
+
+    /** Returns the {@code x-sunset} extension as written, the date after which the operation may be removed. */
+    Optional<String> sunset();
+
     /** Returns whether the operation is marked {@code x-brekquater-public: true}, meaning open on purpose. */
     boolean markedPublic();
 

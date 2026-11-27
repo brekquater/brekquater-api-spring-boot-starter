@@ -22,6 +22,11 @@ All notable changes to this project are recorded here. The format follows [Keep 
   - naming: no two properties of an object differ only in case (`BQ-NAM-006`);
   - documentation: examples and defaults of schemas (`BQ-DOC-009`), and examples of parameters and JSON bodies (`BQ-DOC-010`), are valid against their schema.
 - A new dependency, the [networknt JSON Schema validator](https://github.com/networknt/json-schema-validator) 3.0.9 (Apache-2.0), validates those examples. It brings `com.ethlo.time:itu` and SLF4J; its YAML reader is excluded. It never fetches a `$ref`.
+- 7 versioning rules, checked against what springdoc 3 generates for Spring's own API versioning and for hand-written version prefixes:
+  - `info.version` is `MAJOR.MINOR.PATCH` or a date (`BQ-DOC-011`);
+  - the API uses one versioning mechanism, a path segment, a header or a query parameter (`BQ-DES-015`); path versions name the major version only (`BQ-NAM-007`) and sit at the same position (`BQ-DES-016`); when several majors coexist, the older ones are deprecated (`BQ-DES-017`, INFO);
+  - a deprecated operation says what replaces it (`BQ-DOC-012`), and an `x-sunset` is a date (`BQ-DOC-013`).
+- Rules can read whether an operation is deprecated and its `x-sunset` (`ApiOperation.deprecated()`, `ApiOperation.sunset()`).
 - Rules can read what each schema accepts and its already validated examples (`ApiSchemaNode.shape()`, `OpenApiContext.examples()`).
 - `{base-path}/openapi` serves the assessed OpenAPI document to the dashboard, under the same mode and access check as the assessment.
 
