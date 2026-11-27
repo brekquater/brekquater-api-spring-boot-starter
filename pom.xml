@@ -67,7 +67,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <!-- Every version below was checked on Maven Central before it was pinned. -->
-    <spring-boot.version>4.1.2</spring-boot.version>
+    <spring-boot.version>4.2.0</spring-boot.version>
     <springdoc.version>3.2.0</springdoc.version>
     <!-- Must equal the swagger-core version that springdoc ${springdoc.version} brings. -->
     <swagger.version>2.2.55</swagger.version>
