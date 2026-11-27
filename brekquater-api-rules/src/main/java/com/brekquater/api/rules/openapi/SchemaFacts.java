@@ -25,7 +25,7 @@ final class SchemaFacts {
     }
 
     // OpenAPI 3.0 documents fill "type"; 3.1 documents fill "types". Either may be the only one present.
-    private static Set<String> types(Schema<?> schema) {
+    static Set<String> types(Schema<?> schema) {
         Set<String> types = new HashSet<>(Optional.<Set<String>>ofNullable(schema.getTypes()).orElse(Set.of()));
         Optional.ofNullable(schema.getType()).ifPresent(types::add);
         return types;

@@ -75,6 +75,7 @@
     <jackson.version>3.3.0</jackson.version>
     <jackson-2.version>2.23.0</jackson-2.version>
     <archunit.version>1.5.1</archunit.version>
+    <json-schema-validator.version>3.0.9</json-schema-validator.version>
     <jqwik.version>1.10.2</jqwik.version>
     <jacoco.version>0.8.16</jacoco.version>
     <pitest.version>1.30.2</pitest.version>
@@ -150,6 +151,21 @@
         <groupId>io.swagger.core.v3</groupId>
         <artifactId>swagger-core-jakarta</artifactId>
         <version>${swagger.version}</version>
+      </dependency>
+      <!--
+        Validates examples against their schemas (BQ-DOC-009 and BQ-DOC-010). Apache-2.0. The starter only
+        validates JSON trees it builds itself, so the YAML reader the library would bring is left out.
+      -->
+      <dependency>
+        <groupId>com.networknt</groupId>
+        <artifactId>json-schema-validator</artifactId>
+        <version>${json-schema-validator.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.tngtech.archunit</groupId>

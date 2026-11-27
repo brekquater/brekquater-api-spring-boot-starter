@@ -17,6 +17,12 @@ All notable changes to this project are recorded here. The format follows [Keep 
   - OAuth: no implicit flow (`BQ-SEC-012`, from RFC 9700); required scopes are declared (`BQ-SEC-013`); flow URLs use https (`BQ-SEC-014`);
   - transport and data: declared servers use https (`BQ-SEC-006`); no password or secret is returned unless write-only (`BQ-SEC-017`).
 - Rules can read security schemes, the scopes of each security requirement, the scopes and URLs of OAuth flows, the `servers` list, and whether a schema refers to another one or is write-only (`OpenApiContext.securitySchemes()`, `servers()`, `ApiSecurityRequirement.scopes()`, `ApiOAuthFlow.scopes()`, `ApiSchemaNode.writeOnly()`).
+- 8 schema rules, checked against what springdoc generates for real annotations:
+  - design: a format fits its type (`BQ-DES-010`); enum values match the type (`BQ-DES-011`) and are unique (`BQ-DES-012`); a discriminator's property is defined and required (`BQ-DES-013`); every property is typed (`BQ-DES-014`);
+  - naming: no two properties of an object differ only in case (`BQ-NAM-006`);
+  - documentation: examples and defaults of schemas (`BQ-DOC-009`), and examples of parameters and JSON bodies (`BQ-DOC-010`), are valid against their schema.
+- A new dependency, the [networknt JSON Schema validator](https://github.com/networknt/json-schema-validator) 3.0.9 (Apache-2.0), validates those examples. It brings `com.ethlo.time:itu` and SLF4J; its YAML reader is excluded. It never fetches a `$ref`.
+- Rules can read what each schema accepts and its already validated examples (`ApiSchemaNode.shape()`, `OpenApiContext.examples()`).
 - `{base-path}/openapi` serves the assessed OpenAPI document to the dashboard, under the same mode and access check as the assessment.
 
 ### Changed

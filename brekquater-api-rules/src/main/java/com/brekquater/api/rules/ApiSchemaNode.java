@@ -15,16 +15,22 @@ import java.util.Optional;
  * @param pattern the regular expression a string must match, when the schema declares one
  * @param reference the {@code $ref} of the schema, when it refers to another one
  * @param writeOnly whether the schema is marked {@code writeOnly}, so it is sent in requests but never returned
+ * @param shape what the schema says about the values it accepts
  */
-public record ApiSchemaNode(JsonPointer pointer, Optional<String> pattern, Optional<String> reference, boolean writeOnly) {
+public record ApiSchemaNode(
+        JsonPointer pointer, Optional<String> pattern, Optional<String> reference, boolean writeOnly, ApiSchemaShape shape) {
 
     private static final String PROPERTIES = "properties";
+    private static final String COMPONENTS = "components";
+    // "components", "schemas" and the schema's name, which may be anything, even "properties".
+    private static final int COMPONENT_NAME_TOKENS = 3;
     private static final String NAMED_SCHEMA = "#/components/schemas/";
 
     public ApiSchemaNode {
         Objects.requireNonNull(pointer, "pointer");
         Objects.requireNonNull(pattern, "pattern");
         Objects.requireNonNull(reference, "reference");
+        Objects.requireNonNull(shape, "shape");
     }
 
     /** Returns the name of the schema under {@code components.schemas} that this schema refers to, if any. */
@@ -36,9 +42,17 @@ public record ApiSchemaNode(JsonPointer pointer, Optional<String> pattern, Optio
     public Optional<String> propertyName() {
         List<String> tokens = pointer.tokens();
         int last = tokens.size() - 1;
-        if (last < 1 || !tokens.get(last - 1).equals(PROPERTIES)) {
-            return Optional.empty();
+        return underPropertiesKeyword(tokens, last) ? Optional.of(tokens.get(last)) : Optional.empty();
+    }
+
+    // A property may itself be called "properties", as in Spring's ProblemDetail. In a run of such tokens they
+    // alternate between keyword and name, so the token after the run is a name only when the run is odd.
+    private static boolean underPropertiesKeyword(List<String> tokens, int position) {
+        int first = tokens.get(0).equals(COMPONENTS) ? COMPONENT_NAME_TOKENS : 0;
+        int run = 0;
+        while (position - run > first && tokens.get(position - run - 1).equals(PROPERTIES)) {
+            run++;
         }
-        return Optional.of(tokens.get(last));
+        return run % 2 == 1;
     }
 }
