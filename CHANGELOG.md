@@ -4,6 +4,13 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Upgrading from 0.1.0
+
+- You need springdoc-openapi 3.2.1 or later. If your build pins an older springdoc version, raise it or remove the pin.
+- With strict mode on, startup can now fail where it passed before: the new rule `BQ-SEC-010` (no OAuth password flow) is a blocker.
+- If you wrote your own code against the rules API: `ApiOperation` and `OpenApiContext` have new methods, which any implementation of yours must add. The records `ApiSecurityRequirement` (`schemeNames` became `scopes`) and `BuildReports` (new `baseline`) changed their components; their old constructors and `schemeNames()` remain, but record patterns on them must change. A `switch` over `RuleInput` must handle `BASELINE`.
+- Your application's Spring Boot version still decides which Jackson it runs. Spring Boot 4.1.0 to 4.1.2 manage versions affected by CVE-2026-110879; with `spring-boot-starter-parent`, set the property `jackson-bom.version` to 3.1.8 or later, or move to Spring Boot 4.2.0.
+
 ### Added
 
 - 9 rules, checked against what springdoc generates for real controllers:
