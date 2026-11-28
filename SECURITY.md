@@ -13,7 +13,7 @@ We aim to acknowledge a report within 5 working days. We will keep you informed 
 
 ## Supported versions
 
-The project has not made its first release yet. After `0.1.0`, security fixes go into the latest `0.x` release.
+Security fixes go into the latest `0.x` release.
 
 ## What this library does to stay safe
 

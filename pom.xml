@@ -106,9 +106,9 @@
   <dependencyManagement>
     <dependencies>
       <!--
-        Jackson 3.1.7, which Spring Boot ${spring-boot.version} manages, has CVE-2026-110879 (CVSS 9.8), fixed in 3.1.8.
-        Imported before Spring Boot's BOM, this takes precedence. Remove the import once a Spring Boot release manages
-        the fixed version.
+        swagger-core ${swagger.version} is built with Jackson 3.2.3, which is newer than the 3.1.8 that Spring Boot
+        ${spring-boot.version} manages. Imported before Spring Boot's BOM, this takes precedence. Remove the import once
+        a Spring Boot release manages Jackson 3.2.3 or later.
       -->
       <dependency>
         <groupId>tools.jackson</groupId>

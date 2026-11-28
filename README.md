@@ -92,7 +92,8 @@ The difference is where it lives: inside your Spring Boot application and its Sw
 
 | Brekquater API starter | Spring Boot | springdoc-openapi | Java |
 |---|---|---|---|
-| 0.1.0 | 4.1.x | 3.2.x | 17, 21, 25 |
+| 0.2.0 (not yet released) | 4.1.x, 4.2.x | 3.2.1 or later 3.2.x | 17, 21, 25 |
+| 0.1.0 | 4.1.x | 3.2.0 | 17, 21, 25 |
 
 Spring MVC only. WebFlux and Spring Boot 3.x are not supported.
 
