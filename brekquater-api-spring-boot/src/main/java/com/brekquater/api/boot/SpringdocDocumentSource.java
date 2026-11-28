@@ -3,7 +3,6 @@
 
 package com.brekquater.api.boot;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -12,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springdoc.core.properties.SpringDocConfigProperties;
 import org.springdoc.webmvc.api.OpenApiWebMvcResource;
 import org.springframework.beans.factory.ObjectProvider;
+import tools.jackson.core.JacksonException;
 
 /**
  * Reads the document springdoc already produces, in-process (Adapter pattern).
@@ -52,7 +52,7 @@ final class SpringdocDocumentSource implements OpenApiDocumentSource {
         try {
             byte[] json = resource.openapiJson(request, apiDocsPath, request.getLocale());
             return Optional.of(OpenApiDocument.of(new String(json, StandardCharsets.UTF_8)));
-        } catch (JsonProcessingException exception) {
+        } catch (JacksonException exception) {
             LOGGER.warn("springdoc could not write the OpenAPI document (" + exception.getClass().getName()
                     + "), so the API is reported as not assessed.");
             return Optional.empty();

@@ -4,10 +4,6 @@
 package com.brekquater.api.boot;
 
 import com.brekquater.api.rules.evidence.UnreadableReportException;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Json31;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -15,7 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import org.yaml.snakeyaml.LoaderOptions;
+import org.snakeyaml.engine.v2.api.LoadSettings;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * Reads the committed OpenAPI document of the last release, in JSON or YAML, into the swagger-core model springdoc's
@@ -29,15 +30,15 @@ final class BaselineDocumentReader {
     private static final char BYTE_ORDER_MARK = '﻿';
     private static final int UTF_16_MARK = 0xFE;
     // SnakeYAML stops at 3 million characters by default; allow as much as any report may be.
-    private static final ObjectMapper YAML = new ObjectMapper(YAMLFactory.builder()
-            .loaderOptions(loaderOptions())
+    private static final ObjectMapper YAML = new YAMLMapper(YAMLFactory.builder()
+            .loadSettings(loadSettings())
             .build());
 
     private BaselineDocumentReader() {}
 
     static OpenAPI read(InputStream input) {
         JsonNode tree = tree(text(bytes(input)));
-        String version = tree.path("openapi").asText();
+        String version = tree.path("openapi").asString();
         if (version.isEmpty()) {
             throw new UnreadableReportException("It has no openapi field, so it is not an OpenAPI document.");
         }
@@ -83,9 +84,9 @@ final class BaselineDocumentReader {
         }
     }
 
-    private static LoaderOptions loaderOptions() {
-        LoaderOptions options = new LoaderOptions();
-        options.setCodePointLimit((int) BuildReportFiles.MAXIMUM_BYTES);
-        return options;
+    private static LoadSettings loadSettings() {
+        return LoadSettings.builder()
+                .setCodePointLimit((int) BuildReportFiles.MAXIMUM_BYTES)
+                .build();
     }
 }

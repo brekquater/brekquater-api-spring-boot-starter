@@ -4,11 +4,11 @@
 package com.brekquater.api.rules.openapi;
 
 import com.brekquater.api.rules.AssessmentContext;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.core.util.Yaml31;
 import io.swagger.v3.oas.models.OpenAPI;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Turns an inline YAML fixture into what a rule sees. It reads the YAML with swagger-core, the library springdoc
@@ -28,7 +28,7 @@ public final class OpenApiFixture {
         ObjectMapper mapper = yaml.startsWith(OPENAPI_3_0) ? Yaml.mapper() : Yaml31.mapper();
         try {
             return mapper.readValue(yaml, OpenAPI.class);
-        } catch (JsonProcessingException exception) {
+        } catch (JacksonException exception) {
             throw new IllegalArgumentException("The fixture is not a readable OpenAPI document", exception);
         }
     }

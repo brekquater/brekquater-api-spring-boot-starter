@@ -13,15 +13,9 @@ final class JsonValues {
 
     static final JsonMapper MAPPER = JsonMapper.shared();
 
-    private static final String JACKSON_2 = "com.fasterxml.jackson.databind.";
-
     private JsonValues() {}
 
-    // swagger-core reads documents with Jackson 2, so a value may be a Jackson 2 node, whose text is its JSON.
     static JsonNode tree(Object value) {
-        if (value != null && value.getClass().getName().startsWith(JACKSON_2)) {
-            return MAPPER.readTree(value.toString());
-        }
         return MAPPER.valueToTree(value);
     }
 
