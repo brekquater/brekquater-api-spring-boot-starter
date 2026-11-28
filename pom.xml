@@ -70,10 +70,9 @@
     <spring-boot.version>4.2.0</spring-boot.version>
     <springdoc.version>3.2.1</springdoc.version>
     <!-- Must equal the swagger-core version that springdoc ${springdoc.version} brings. -->
-    <swagger.version>2.2.55</swagger.version>
-    <!-- Newer than the Jackson versions Spring Boot ${spring-boot.version} manages; see the BOM imports below. -->
+    <swagger.version>3.0.0</swagger.version>
+    <!-- Newer than the Jackson version Spring Boot ${spring-boot.version} manages; see the BOM import below. -->
     <jackson.version>3.3.0</jackson.version>
-    <jackson-2.version>2.23.0</jackson-2.version>
     <archunit.version>1.5.1</archunit.version>
     <json-schema-validator.version>3.0.9</json-schema-validator.version>
     <jqwik.version>1.10.2</jqwik.version>
@@ -107,21 +106,14 @@
   <dependencyManagement>
     <dependencies>
       <!--
-        Jackson 3.1.7 and 2.21.7, which Spring Boot ${spring-boot.version} manages, have CVE-2026-110879 (CVSS 9.8),
-        fixed in 3.1.8 and 2.21.8. Imported before Spring Boot's BOM, these take precedence. Remove both imports once
-        a Spring Boot release manages the fixed versions.
+        Jackson 3.1.7, which Spring Boot ${spring-boot.version} manages, has CVE-2026-110879 (CVSS 9.8), fixed in 3.1.8.
+        Imported before Spring Boot's BOM, this takes precedence. Remove the import once a Spring Boot release manages
+        the fixed version.
       -->
       <dependency>
         <groupId>tools.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
         <version>${jackson.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <version>${jackson-2.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -144,12 +136,12 @@
       </dependency>
       <dependency>
         <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-models-jakarta</artifactId>
+        <artifactId>swagger-models</artifactId>
         <version>${swagger.version}</version>
       </dependency>
       <dependency>
         <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-core-jakarta</artifactId>
+        <artifactId>swagger-core</artifactId>
         <version>${swagger.version}</version>
       </dependency>
       <!--
