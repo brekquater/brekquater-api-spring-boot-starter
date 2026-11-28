@@ -4,3 +4,9 @@
 # springdoc documents responses as */* unless told which type the API sends (BQ-DOC-008).
 springdoc:
   default-produces-media-type: application/json
+
+# The good API as it was released: the current one has not broken it (BQ-EVO rules).
+brekquater:
+  api:
+    reports:
+      baseline: samples/good/openapi-baseline.json

@@ -34,6 +34,7 @@ export const READS_NAMES: Record<string, string> = {
   COVERAGE: 'Coverage report',
   TEST_RESULTS: 'Test reports',
   VULNERABILITIES: 'Vulnerability report',
+  BASELINE: 'Previous OpenAPI document',
 };
 
 export type Rule = {

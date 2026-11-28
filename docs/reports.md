@@ -1,12 +1,17 @@
+---
+description: Feed JaCoCo, Surefire, Failsafe, OSV-Scanner or OWASP Dependency-Check reports, and the OpenAPI document of your last release, to the starter to turn on its testing, vulnerability and breaking-change rules.
+---
+
 # Build reports
 
-Besides the OpenAPI document, the starter reads three kinds of report that your build can write. Each one turns on more rules:
+Besides the OpenAPI document, the starter reads three kinds of report that your build can write, and the OpenAPI document of your last release. Each one turns on more rules:
 
 | Report | Rules | Category |
 |---|---|---|
 | JaCoCo XML coverage | [BQ-TST-001](rules/BQ-TST-001.md) line coverage, [BQ-TST-002](rules/BQ-TST-002.md) branch coverage | TESTING |
 | Surefire or Failsafe XML test results | [BQ-TST-003](rules/BQ-TST-003.md) no failing tests | TESTING |
 | OSV-Scanner or OWASP Dependency-Check JSON | [BQ-VUL-001](rules/BQ-VUL-001.md) to [BQ-VUL-004](rules/BQ-VUL-004.md), one per CVSS band | SECURITY |
+| OpenAPI document of the last release | [BQ-EVO-001](rules/BQ-EVO-001.md) to [BQ-EVO-009](rules/BQ-EVO-009.md), breaking changes since that release | DESIGN |
 
 No report is required. When one is missing, its rules are skipped, the category says so, and the assessment's `inputs` list tells you what to run.
 
@@ -23,6 +28,7 @@ Paths are relative to the working directory, which is the project directory when
 | Coverage | `target/site/jacoco/jacoco.xml` | `brekquater.api.reports.coverage` |
 | Test results | every `TEST-*.xml` in `target/surefire-reports` and `target/failsafe-reports` | `brekquater.api.reports.test-results` |
 | Vulnerabilities | `target/osv-scanner.json`, then `target/dependency-check-report.json` | `brekquater.api.reports.vulnerabilities` |
+| Baseline document | `openapi-baseline.json` | `brekquater.api.reports.baseline` |
 
 The starter notices when a report is written again and reassesses on the next request. A report larger than 50 MB, or one that is malformed, is marked `UNREADABLE`, and the log says why.
 
@@ -92,6 +98,26 @@ To accept an advisory you have reviewed, add it to `osv-scanner.toml` with a rea
 ```
 
 The first run downloads the NVD data, which is slow without an NVD API key; see the plugin's documentation for `nvdApiKey`. The starter uses the newest CVSS version in the report (v4, then v3, then v2). Vulnerabilities you suppress in Dependency-Check's suppression file are not read.
+
+## Breaking changes: the baseline document
+
+The BQ-EVO rules compare the current OpenAPI document with the one of your last release, which you commit with your code. It is a file in your repository, not something the starter stores or fetches: the starter only reads it.
+
+At each release, save the document the release serves and commit it:
+
+```bash
+curl http://localhost:8080/v3/api-docs -o openapi-baseline.json
+```
+
+The file can be JSON or YAML, in OpenAPI 3.0 or 3.1, and must be saved as UTF-8. Windows PowerShell's `Out-File` writes UTF-16, so use `curl.exe -o`; a file that cannot be read is marked `UNREADABLE`, and the log says why. Between releases it stays the same, so every change you make is compared with what your clients actually use, and code review shows the API's diff when someone refreshes it.
+
+What is compared:
+
+- Operations are matched by method and path. When no path is the same, one that differs only in path variable names is used, so renaming `{id}` to `{orderId}`, or changing an operationId, is not a change. An operation that several current ones could have become is skipped rather than guessed.
+- Parameters, request bodies and the JSON bodies of success responses are compared, following shared schemas, nested objects, arrays and `allOf`. A change in a shared schema is reported on every operation that uses it, and the message says where the schema is. A `*/*` body, which springdoc writes by default, is compared as JSON.
+- The server address springdoc generates for the running application is ignored.
+
+When a change is intended, release it, and refresh the baseline in the same release.
 
 ## What the assessment says about reports
 

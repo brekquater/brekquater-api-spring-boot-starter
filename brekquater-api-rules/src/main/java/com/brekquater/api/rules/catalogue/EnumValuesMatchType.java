@@ -1,0 +1,71 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Brekquater
+
+package com.brekquater.api.rules.catalogue;
+
+import com.brekquater.api.rules.ApiLiteral;
+import com.brekquater.api.rules.ApiSchemaNode;
+import com.brekquater.api.rules.Category;
+import com.brekquater.api.rules.Explanation;
+import com.brekquater.api.rules.JsonPointer;
+import com.brekquater.api.rules.OpenApiContext;
+import com.brekquater.api.rules.OpenApiRule;
+import com.brekquater.api.rules.Severity;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+/**
+ * BQ-DES-011: every {@code enum} value has the schema's type. A client cannot send a string where the schema asks
+ * for an integer, so such a value can never be used.
+ */
+public final class EnumValuesMatchType extends OpenApiRule<ApiSchemaNode> {
+
+    @Override
+    public String id() {
+        return "BQ-DES-011";
+    }
+
+    @Override
+    public Severity severity() {
+        return Severity.MINOR;
+    }
+
+    @Override
+    public Category category() {
+        return Category.DESIGN;
+    }
+
+    @Override
+    protected List<ApiSchemaNode> targets(OpenApiContext document) {
+        return document.schemas().stream()
+                .filter(schema -> !schema.shape().types().isEmpty() && !schema.shape().enumValues().isEmpty())
+                .toList();
+    }
+
+    @Override
+    protected JsonPointer locate(ApiSchemaNode target) {
+        return target.pointer();
+    }
+
+    @Override
+    protected Optional<Explanation> check(ApiSchemaNode target, OpenApiContext document) {
+        Set<String> types = target.shape().types();
+        String wrong = target.shape().enumValues().stream()
+                .filter(value -> !value.type().equals("null") && !fits(value, types))
+                .map(ApiLiteral::json)
+                .collect(Collectors.joining(", "));
+        if (wrong.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new Explanation(
+                "Enum values " + wrong + " are not of the type " + String.join(", ", new TreeSet<>(types)) + ".",
+                "Declare the field as a Java enum, or make @Schema(allowableValues = ...) match the field's type."));
+    }
+
+    private static boolean fits(ApiLiteral value, Set<String> types) {
+        return types.contains(value.type()) || value.type().equals("integer") && types.contains("number");
+    }
+}

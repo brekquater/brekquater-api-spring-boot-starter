@@ -28,6 +28,12 @@ public interface OpenApiContext {
     /** Returns the names of the schemes defined under {@code components.securitySchemes}. */
     Set<String> securitySchemeNames();
 
+    /** Returns the schemes defined under {@code components.securitySchemes}, ordered by name. */
+    List<ApiSecurityScheme> securitySchemes();
+
+    /** Returns the document-wide {@code servers} entries, in document order. */
+    List<ApiServer> servers();
+
     /** Returns every flow of every OAuth 2.0 security scheme, ordered by scheme name. */
     List<ApiOAuthFlow> oauthFlows();
 
@@ -37,6 +43,13 @@ public interface OpenApiContext {
      * followed, because the schema it names is listed on its own.
      */
     List<ApiSchemaNode> schemas();
+
+    /**
+     * Returns every example and default in the document, each already validated against its schema: those of
+     * schemas first, then those of parameters and JSON bodies. A schema's {@code format} is not enforced, because
+     * JSON Schema treats it as a note.
+     */
+    List<ApiExample> examples();
 
     DocumentSummary document();
 }

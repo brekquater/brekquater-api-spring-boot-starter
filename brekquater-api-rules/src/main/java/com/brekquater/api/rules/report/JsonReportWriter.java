@@ -82,7 +82,17 @@ final class JsonReportWriter implements ReportWriter {
         inputs.add(input(RuleInput.COVERAGE, reports.coverage()));
         inputs.add(input(RuleInput.TEST_RESULTS, reports.testResults()));
         inputs.add(input(RuleInput.VULNERABILITIES, reports.vulnerabilities()));
+        inputs.add(documentRead ? input(RuleInput.BASELINE, reports.baseline()) : baselineNotCompared());
         return inputs;
+    }
+
+    // Without a current document there is nothing to compare, whether or not a baseline file exists.
+    private ObjectNode baselineNotCompared() {
+        ObjectNode node = mapper.createObjectNode();
+        node.put("type", RuleInput.BASELINE.name());
+        node.put("status", ReportStatus.MISSING.name());
+        node.put("hint", ReportHints.BASELINE_NOT_COMPARED);
+        return node;
     }
 
     private ObjectNode input(RuleInput type, BuildReport<?> report) {

@@ -53,13 +53,24 @@ class ArchitectureTest {
     }
 
     @Test
-    void onlyTheReportAndEvidencePackagesTouchTheJsonLibrary() {
+    void onlyTheReportEvidenceAndAdapterPackagesTouchTheJsonLibrary() {
         noClasses()
                 .that()
-                .resideOutsideOfPackages(REPORT_PACKAGE, EVIDENCE_PACKAGE)
+                .resideOutsideOfPackages(REPORT_PACKAGE, EVIDENCE_PACKAGE, ADAPTER_PACKAGE)
                 .should()
                 .dependOnClassesThat()
                 .resideInAnyPackage("tools.jackson..", "com.fasterxml.jackson..")
+                .check(PRODUCTION_CLASSES);
+    }
+
+    @Test
+    void onlyTheAdapterPackageTouchesTheSchemaValidator() {
+        noClasses()
+                .that()
+                .resideOutsideOfPackage(ADAPTER_PACKAGE)
+                .should()
+                .dependOnClassesThat()
+                .resideInAPackage("com.networknt..")
                 .check(PRODUCTION_CLASSES);
     }
 

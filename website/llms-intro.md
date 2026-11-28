@@ -1,0 +1,17 @@
+# Brekquater API Spring Boot Starter
+
+> An open-source (Apache-2.0) Spring Boot 4.1 starter that checks a Spring MVC application's API design. Add one dependency, run the app with the `dev` profile, and Swagger UI shows design findings and a 0 to 100 maturity score. It warns instead of blocking, unless strict mode is turned on.
+
+Use it when a Spring Boot (Spring MVC, springdoc-openapi) project wants feedback on its API design while coding, with no separate linter or server. It needs Java 17 or later and Spring Boot 4.1.x. WebFlux and Spring Boot 3 are not supported.
+
+Maven dependency:
+
+```xml
+<dependency>
+  <groupId>com.brekquater</groupId>
+  <artifactId>brekquater-api-spring-boot-starter</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
+It is safe by default: the panel and the endpoints exist only in the `dev` and `local` profiles, it makes no outbound calls and sends no telemetry, and it never changes the `SecurityFilterChain`.

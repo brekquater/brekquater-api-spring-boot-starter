@@ -32,6 +32,7 @@ final class SwaggerOperation implements ApiOperation {
     private static final String CONTENT = "content";
     private static final String IGNORE_EXTENSION = "x-brekquater-ignore";
     private static final String PUBLIC_EXTENSION = "x-brekquater-public";
+    private static final String SUNSET_EXTENSION = "x-sunset";
 
     private final HttpMethod method;
     private final String path;
@@ -109,6 +110,16 @@ final class SwaggerOperation implements ApiOperation {
     public Optional<List<ApiSecurityRequirement>> declaredSecurity() {
         return Optional.ofNullable(operation.getSecurity())
                 .map(requirements -> SecurityRequirements.of(requirements, pointer().append(SECURITY)));
+    }
+
+    @Override
+    public boolean deprecated() {
+        return Boolean.TRUE.equals(operation.getDeprecated());
+    }
+
+    @Override
+    public Optional<String> sunset() {
+        return Optional.ofNullable(extensions().get(SUNSET_EXTENSION)).map(String::valueOf);
     }
 
     @Override

@@ -28,7 +28,7 @@ class ApiDocumentation {
         return new OpenAPI()
                 .info(new Info()
                         .title("Orders API")
-                        .version("1.0")
+                        .version("1.0.0")
                         .description("Places, finds and cancels customer orders.")
                         .contact(new Contact().name("Orders team").email("orders@example.com")))
                 .components(new Components().addSecuritySchemes(

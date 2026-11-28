@@ -15,5 +15,7 @@ public enum RuleInput {
     /** Surefire or Failsafe XML test reports from the application's build. */
     TEST_RESULTS,
     /** An OSV-Scanner or OWASP Dependency-Check report on the application's dependencies. */
-    VULNERABILITIES
+    VULNERABILITIES,
+    /** The OpenAPI document of the last release, committed with the application and compared with the current one. */
+    BASELINE
 }

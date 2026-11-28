@@ -18,7 +18,8 @@ import tools.jackson.databind.JsonNode;
         properties = {
             "brekquater.api.reports.coverage=samples/good/jacoco.xml",
             "brekquater.api.reports.test-results=samples/good",
-            "brekquater.api.reports.vulnerabilities=samples/good/osv-scanner.json"
+            "brekquater.api.reports.vulnerabilities=samples/good/osv-scanner.json",
+            "brekquater.api.reports.baseline=samples/good/openapi-baseline.json"
         })
 @ActiveProfiles({"dev", "good"})
 class GoodApiTest {
